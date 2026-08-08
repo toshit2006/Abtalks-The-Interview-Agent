@@ -29,16 +29,17 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 20
-          cache: npm
 
       - name: Install Dependencies
-        run: npm ci
+        run: npm install
 
       - name: Build Application
         run: npm run build
 
-      - name: Add .nojekyll
-        run: touch .output/public/.nojekyll
+      - name: Configure Static Spa Outputs
+        run: |
+          touch .output/public/.nojekyll
+          if [ -f .output/public/index.html ]; then cp .output/public/index.html .output/public/404.html; fi
 
       - name: Upload Artifact
         uses: actions/upload-pages-artifact@v3

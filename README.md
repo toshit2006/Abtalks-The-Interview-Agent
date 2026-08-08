@@ -1,6 +1,6 @@
 # Interview Assistant Dashboard
 
-> **Hackathon AI Usage Log:** See the [`PROMPTS`](./PROMPTS) folder for the complete prompt history and AI-assisted development workflow.
+> **Hackathon AI Usage Log:** See [`PROMPTS.md`](./PROMPTS.md) for the complete prompt history and AI-assisted development workflow.
 
 > _Role:_ Senior Frontend Engineer & UI/UX Specialist.
 

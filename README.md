@@ -1,7 +1,5 @@
 # Interview Assistant Dashboard
 
-> **Hackathon AI Usage Log:** See [`PROMPTS.md`](./PROMPTS.md) for the complete prompt history and AI-assisted development workflow.
-
 > _Role:_ Senior Frontend Engineer & UI/UX Specialist.
 
 > _Task:_ Create the main application layout and design system for "The Interview Agent" hackathon app.
@@ -43,13 +41,15 @@ npm run dev
 
 ## AI-powered interviewing (optional)
 
-Copy `.env.example` to `.env` and set `ANTHROPIC_API_KEY` to have the agent
-use Claude for:
+Copy `.env.example` to `.env` and set `GROQ_API_KEY` to have the agent
+use Groq API for:
 
 - grading each answer against the curriculum objective it's tied to,
 - writing the next question/follow-up in reaction to what the candidate
   actually said (real adaptive interviewing, not templated phrasing), and
 - writing the final report's summary paragraph.
+
+Additionally, set `QDRANT_URL` for vector similarity RAG memory retrieval across curriculum topics and candidate answers.
 
 Without a key, the app still works fully offline: `src/lib/interview-engine.ts`
 provides a deterministic heuristic scorer and templated question phrasing so

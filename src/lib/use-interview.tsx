@@ -1,12 +1,4 @@
-import {
-  createContext,
-  useContext,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-  type ReactNode,
-} from "react";
+import { createContext, useContext, useMemo, useRef, useState, type ReactNode } from "react";
 import { getCandidate } from "@/lib/curriculum";
 import {
   REQUIRED_DISTINCT_DAYS,
@@ -42,6 +34,7 @@ type Ctx = InterviewState & {
   distinctDaysCovered: number;
   currentQuestion: InterviewQuestion | null;
   pending: boolean;
+  startSession: () => Promise<void>;
   submitAnswer: (text: string) => Promise<void>;
   skipQuestion: () => Promise<void>;
   endInterview: () => Promise<void>;
@@ -58,7 +51,10 @@ export function InterviewProvider({
 }) {
   const candidate = useMemo<CandidateProfile>(() => getCandidate(candidateId), [candidateId]);
   const sessionId = useRef(`IA-${Math.random().toString(36).slice(2, 8).toUpperCase()}`).current;
-  const startedAt = useRef(Date.now()).current;
+
+  // Timer only starts when user explicitly launches the interview
+  const [startedAtTime, setStartedAtTime] = useState<number>(0);
+  const startedAt = useRef<number>(0);
 
   const questions = useMemo<InterviewQuestion[]>(() => buildQuestionPlan(candidate), [candidate]);
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -96,9 +92,13 @@ export function InterviewProvider({
     }
   };
 
-  const start = async () => {
+  const startSession = async () => {
     if (started.current) return;
     started.current = true;
+    const t = Date.now();
+    startedAt.current = t;
+    setStartedAtTime(t);
+
     setPending(true);
     try {
       apply(await post({ candidate }));
@@ -107,13 +107,11 @@ export function InterviewProvider({
     }
   };
 
-  useEffect(() => {
-    void start();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
   const turn = async (payload: Record<string, unknown>, echo?: string) => {
     if (pending || done) return;
+    if (!started.current) {
+      await startSession();
+    }
     if (echo !== undefined) setMessages((m) => [...m, msg("candidate", echo)]);
     setPending(true);
     try {
@@ -132,12 +130,13 @@ export function InterviewProvider({
     results,
     done,
     feedback,
-    startedAt,
+    startedAt: startedAtTime,
     requiredQuestions: REQUIRED_QUESTIONS,
     requiredDays: REQUIRED_DISTINCT_DAYS,
     distinctDaysCovered: distinctDays(results),
     currentQuestion,
     pending,
+    startSession,
     submitAnswer: (text) => turn({ message: text }, text),
     skipQuestion: () => turn({ skip: true }, "Skip this topic."),
     endInterview: async () => {

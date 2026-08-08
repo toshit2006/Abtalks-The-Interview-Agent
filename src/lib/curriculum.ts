@@ -7,9 +7,7 @@ export const candidates = (candidatesJson as { candidates: CandidateProfile[] })
 
 export const dayMap = new Map<number, CurriculumDay>(curriculum.days.map((d) => [d.day, d]));
 
-export function getDay(day: number): CurriculumDay | undefined {
-  return dayMap.get(day);
-}
+export const getDay = (day: number) => dayMap.get(day);
 
 export function moduleForDay(day: number): string {
   const m = curriculum.modules.find((mod) => {

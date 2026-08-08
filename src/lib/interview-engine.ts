@@ -1,76 +1,56 @@
-import { getDay, moduleForDay } from "@/lib/curriculum";
+import { curriculum, getDay } from "@/lib/curriculum";
 import type {
   CandidateProfile,
+  CurriculumDay,
   FinalEvaluation,
   InterviewQuestion,
-  Mission,
   QuestionResult,
 } from "@/types/interview";
 
 export const REQUIRED_QUESTIONS = 8;
 export const REQUIRED_DISTINCT_DAYS = 4;
 
-function difficultyFor(m: Mission): "Easy" | "Medium" | "Hard" {
-  if (m.skipped) return "Hard";
-  const attempts = m.attempts ?? 1;
-  if (attempts >= 4) return "Hard";
-  if (attempts >= 2) return "Medium";
-  return "Easy";
-}
-
-/** Missions the interview should probe hardest first: skipped, then most attempts. */
-function priority(m: Mission): number {
-  if (m.skipped) return 100;
-  return (m.attempts ?? 1) * 10;
-}
-
-function phrase(objective: string, dayTitle: string, index: number): string {
-  const o = objective.replace(/^[A-Z]/, (c) => c.toLowerCase());
-  const templates = [
-    `In your ${dayTitle} mission you had to ${o}. Walk me through how you actually did it.`,
-    `How would you ${o}? Be specific about the trade-offs you weighed.`,
-    `You marked ${dayTitle} as covered — explain how you would ${o} in production.`,
-    `What breaks first when you ${o} at scale, and how do you detect it?`,
-  ];
-  return templates[index % templates.length]!;
-}
-
-/**
- * Builds an interview plan of at least REQUIRED_QUESTIONS questions spanning at
- * least REQUIRED_DISTINCT_DAYS distinct curriculum days from the candidate's own
- * mission history.
- */
 export function buildQuestionPlan(candidate: CandidateProfile): InterviewQuestion[] {
-  const missions = [...candidate.missions]
-    .filter((m) => getDay(m.day))
-    .sort((a, b) => priority(b) - priority(a) || a.day - b.day);
+  // Determine candidate's target days (prioritizing skipped & failed missions)
+  const targetDays = candidate.missions.filter((m) => m.skipped || !m.passed).map((m) => m.day);
 
-  const questions: InterviewQuestion[] = [];
-  let round = 0;
+  // Fill up to 10 days from cohort curriculum
+  const allDays = curriculum.days.map((d) => d.day);
+  const selectedDays = Array.from(new Set([...targetDays, ...allDays])).slice(0, 10);
 
-  while (questions.length < REQUIRED_QUESTIONS && round < 4) {
-    for (const m of missions) {
-      if (questions.length >= REQUIRED_QUESTIONS && round > 0) break;
-      const day = getDay(m.day)!;
-      const objective = day.objectives[round % day.objectives.length] ?? day.title;
-      questions.push({
-        id: `q-${m.day}-${round}`,
-        day: m.day,
-        dayTitle: day.title,
-        module: moduleForDay(m.day),
-        difficulty: difficultyFor(m),
-        prompt: phrase(objective, day.title, round),
-        objective,
+  const plan: InterviewQuestion[] = [];
+  let idCounter = 1;
+
+  for (const dayNum of selectedDays) {
+    const detail: CurriculumDay | undefined = getDay(dayNum);
+    if (!detail) continue;
+
+    // Build main conceptual question
+    plan.push({
+      id: `q${idCounter++}`,
+      day: detail.day,
+      dayTitle: detail.title,
+      module: `Module ${curriculum.modules.find((m) => m.days.includes(detail.day))?.n ?? 1}`,
+      prompt: `Regarding Day ${detail.day} (${detail.title}): ${detail.objectives[0] ?? "Explain the core concepts."} How would you implement this in a production AI system using ${detail.tools.slice(0, 2).join(" and ")}?`,
+      objective: detail.objectives[0] ?? "Mastery of topic",
+      difficulty: dayNum > 20 ? "Hard" : dayNum > 10 ? "Medium" : "Easy",
+    });
+
+    // Build follow-up deep-dive question
+    if (detail.objectives[1]) {
+      plan.push({
+        id: `q${idCounter++}`,
+        day: detail.day,
+        dayTitle: detail.title,
+        module: `Module ${curriculum.modules.find((m) => m.days.includes(detail.day))?.n ?? 1}`,
+        prompt: `Deep dive on Day ${detail.day}: ${detail.objectives[1]} What trade-offs or failure modes must be handled?`,
+        objective: detail.objectives[1],
+        difficulty: "Hard",
       });
-      if (round === 0 && questions.length >= REQUIRED_QUESTIONS) break;
     }
-    round += 1;
   }
 
-  return questions.slice(
-    0,
-    Math.max(REQUIRED_QUESTIONS, questions.length ? REQUIRED_QUESTIONS : 0),
-  );
+  return plan;
 }
 
 export function distinctDays(results: QuestionResult[]): number {
@@ -78,25 +58,21 @@ export function distinctDays(results: QuestionResult[]): number {
 }
 
 const DEPTH_WORDS = [
-  "because",
   "trade-off",
   "tradeoff",
   "latency",
   "throughput",
-  "index",
+  "architecture",
+  "vector",
   "embedding",
-  "retrieval",
   "chunk",
-  "evaluate",
-  "metric",
-  "benchmark",
+  "rerank",
+  "index",
+  "postgres",
+  "sql",
+  "qdrant",
+  "groq",
   "cache",
-  "scale",
-  "fallback",
-  "monitor",
-  "prompt",
-  "context",
-  "agent",
   "token",
   "cost",
   "recall",
@@ -154,6 +130,20 @@ export function buildFinalEvaluation(
   const avg = (arr: number[]) =>
     arr.length ? Math.round(arr.reduce((a, b) => a + b, 0) / arr.length) : 0;
 
+  // Handle case when 0 live questions were answered before ending interview
+  if (scored.length === 0) {
+    return {
+      summary: `${candidate.member.name} (${candidate.member.jobRole}) ended the interview session before submitting any live answers. No evaluation data collected.`,
+      strengths: [
+        `Candidate record: ${candidate.signals.missionsCompleted}/31 cohort missions completed.`,
+      ],
+      gaps: ["Session ended without submitting answers to any live interview questions."],
+      next: ["Launch a live interview session and answer the technical questions."],
+      scores: { overall: 0, conceptualDepth: 0, communication: 0 },
+      results: [],
+    };
+  }
+
   const overall = avg(scored.map((r) => r.score));
   const answered = scored.filter((r) => r.status !== "skipped");
   const conceptualDepth = avg(answered.map((r) => Math.round(r.score * 0.94)));
@@ -167,13 +157,9 @@ export function buildFinalEvaluation(
   const strengths = strong.slice(0, 4).map((r) => `${r.dayTitle} — ${r.feedback}`);
   const gaps = weak.slice(0, 4).map((r) => `${r.dayTitle} — ${r.feedback}`);
 
-  const firstTryRate = candidate.signals.missionsCompleted
-    ? Math.round((candidate.signals.missionsFirstTry / candidate.signals.missionsCompleted) * 100)
-    : 0;
-
   return {
-    summary: `${candidate.member.name} (${candidate.member.jobRole}, ${candidate.member.yearsExperience} yrs) was assessed on ${scored.length} questions across ${distinctDays(scored)} curriculum days and scored ${overall}/100 overall. Cohort signals: ${candidate.signals.commitDays} commit days, ${candidate.signals.missionsCompleted} missions completed, ${firstTryRate}% cleared first try.`,
-    strengths: strengths.length ? strengths : ["Engaged with every question asked."],
+    summary: `${candidate.member.name} (${candidate.member.jobRole}, ${candidate.member.yearsExperience} yrs) was assessed on ${scored.length} questions across ${distinctDays(scored)} curriculum days and scored ${overall}/100 overall. Cohort signals: ${candidate.signals.commitDays} commit days, ${candidate.signals.missionsCompleted} missions completed.`,
+    strengths: strengths.length ? strengths : [`Completed ${scored.length} evaluation questions.`],
     gaps: gaps.length ? gaps : ["No material gaps surfaced in this round."],
     next: [
       weak[0]

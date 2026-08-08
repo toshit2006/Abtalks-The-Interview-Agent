@@ -1,61 +1,20 @@
 /**
- * Server-only Claude integration for the Interview Agent.
- *
- * This is what makes the agent an *interviewer* rather than a script:
- * every answer is graded by an LLM against the candidate's own cohort
- * signals, and every transition is phrased by the LLM so it can react to
- * what the candidate actually said (ask a real follow-up, push back on a
- * vague answer, acknowledge a strong one) instead of swapping words into a
- * fixed template.
- *
- * If ANTHROPIC_API_KEY isn't set (or a call fails), every export here
- * resolves to `null` and the caller falls back to the deterministic
- * heuristics in interview-engine.ts — so the app still runs end-to-end
- * without a key, it's just less adaptive.
+ * Server-only LLM integration for the Interview Agent.
+ * Uses Groq API for ultra-fast inference.
  */
 import type { CandidateProfile, InterviewQuestion, QuestionResult } from "@/types/interview";
+import { callGroq, groqEnabled } from "@/lib/groq";
 
-const API_URL = "https://api.anthropic.com/v1/messages";
-const MODEL = process.env["ANTHROPIC_MODEL"] ?? "claude-sonnet-5";
-
-export function aiEnabled(): boolean {
-  return Boolean(process.env["ANTHROPIC_API_KEY"]);
-}
+export const aiEnabled = groqEnabled;
 
 type ChatTurn = { question: string; answer: string };
 
-async function callClaude(system: string, user: string, maxTokens = 500): Promise<string | null> {
-  const apiKey = process.env["ANTHROPIC_API_KEY"];
-  if (!apiKey) return null;
-
-  try {
-    const res = await fetch(API_URL, {
-      method: "POST",
-      headers: {
-        "content-type": "application/json",
-        "x-api-key": apiKey,
-        "anthropic-version": "2023-06-01",
-      },
-      body: JSON.stringify({
-        model: MODEL,
-        max_tokens: maxTokens,
-        system,
-        messages: [{ role: "user", content: user }],
-      }),
-    });
-
-    if (!res.ok) {
-      console.error(`Claude API error ${res.status}: ${await res.text()}`);
-      return null;
-    }
-
-    const data = (await res.json()) as { content?: { type: string; text?: string }[] };
-    const text = data.content?.find((b) => b.type === "text")?.text;
-    return text?.trim() || null;
-  } catch (err) {
-    console.error("Claude API call failed:", err);
-    return null;
+/** LLM caller using Groq API. */
+async function callLLM(system: string, user: string, maxTokens = 500): Promise<string | null> {
+  if (groqEnabled()) {
+    return callGroq(system, user, maxTokens);
   }
+  return null;
 }
 
 function jsonFromReply(reply: string): unknown {
@@ -71,11 +30,12 @@ function jsonFromReply(reply: string): unknown {
   }
 }
 
-/** Grades one answer against the question's objective. Returns null on any failure. */
+/** Grades one answer against the question's objective and optional vector RAG context. */
 export async function scoreAnswerWithAI(
   question: InterviewQuestion,
   answer: string,
   candidate: CandidateProfile,
+  ragContext?: string,
 ): Promise<Pick<QuestionResult, "status" | "score" | "feedback"> | null> {
   if (!answer.trim()) return null;
 
@@ -91,11 +51,14 @@ export async function scoreAnswerWithAI(
     `Candidate: ${candidate.member.jobRole}, ${candidate.member.yearsExperience} yrs experience.`,
     `Curriculum day: ${question.dayTitle} (${question.module}), difficulty ${question.difficulty}.`,
     `Learning objective being probed: ${question.objective}`,
+    ragContext ? `Retrieved Vector RAG Context:\n${ragContext}` : "",
     `Question asked: ${question.prompt}`,
     `Candidate's answer: ${answer}`,
-  ].join("\n");
+  ]
+    .filter(Boolean)
+    .join("\n");
 
-  const reply = await callClaude(system, user, 300);
+  const reply = await callLLM(system, user, 300);
   if (!reply) return null;
   const parsed = jsonFromReply(reply) as {
     score?: number;
@@ -113,19 +76,15 @@ export async function scoreAnswerWithAI(
   };
 }
 
-/**
- * Writes the interviewer's next line: reacts to the candidate's last answer
- * (real follow-up remark, one sentence max) then transitions into the next
- * planned question. Returns null on failure so the caller can fall back to
- * the template phrasing.
- */
+/** Writes the interviewer's next line with optional vector RAG context. */
 export async function writeTransitionWithAI(opts: {
   candidate: CandidateProfile;
   history: ChatTurn[];
   lastResult: Pick<QuestionResult, "score" | "feedback" | "dayTitle"> | null;
   nextQuestion: InterviewQuestion;
+  ragContext?: string | undefined;
 }): Promise<string | null> {
-  const { candidate, history, lastResult, nextQuestion } = opts;
+  const { candidate, history, lastResult, nextQuestion, ragContext } = opts;
 
   const system = [
     "You are a warm but rigorous senior technical interviewer conducting a live, spoken-style interview.",
@@ -146,19 +105,21 @@ export async function writeTransitionWithAI(opts: {
     lastResult
       ? `Last answer scored ${lastResult.score}/100 on "${lastResult.dayTitle}". Grader's note: ${lastResult.feedback}`
       : "This is the first question of the interview.",
+    ragContext ? `Retrieved Vector RAG Context:\n${ragContext}` : "",
     transcript ? `Recent transcript:\n${transcript}` : "",
     `Next planned question (Day ${nextQuestion.day} · ${nextQuestion.dayTitle}, ${nextQuestion.difficulty}): ${nextQuestion.prompt}`,
   ]
     .filter(Boolean)
     .join("\n\n");
 
-  return callClaude(system, user, 220);
+  return callLLM(system, user, 220);
 }
 
-/** Writes the opening line of the interview, introducing the first question. */
+/** Writes the opening line of the interview. */
 export async function writeOpeningWithAI(
   candidate: CandidateProfile,
   firstQuestion: InterviewQuestion,
+  ragContext?: string | undefined,
 ): Promise<string | null> {
   const system = [
     "You are a senior technical interviewer opening a live interview.",
@@ -170,10 +131,13 @@ export async function writeOpeningWithAI(
 
   const user = [
     `Candidate: ${candidate.member.name}, ${candidate.member.jobRole}, ${candidate.member.yearsExperience} yrs.`,
+    ragContext ? `Retrieved Vector Context:\n${ragContext}` : "",
     `First question (Day ${firstQuestion.day} · ${firstQuestion.dayTitle}): ${firstQuestion.prompt}`,
-  ].join("\n");
+  ]
+    .filter(Boolean)
+    .join("\n");
 
-  return callClaude(system, user, 180);
+  return callLLM(system, user, 180);
 }
 
 /** Writes the free-text summary paragraph for the final report. */
@@ -182,6 +146,7 @@ export async function writeFinalSummaryWithAI(
   results: QuestionResult[],
   scores: { overall: number; conceptualDepth: number; communication: number },
 ): Promise<string | null> {
+  if (!results.length) return null;
   const system = [
     "You are a senior technical interviewer writing the summary paragraph of a structured feedback report.",
     "Write ONLY the summary paragraph, 2-4 sentences, no markdown, no headers.",
@@ -198,5 +163,5 @@ export async function writeFinalSummaryWithAI(
     `Per-question results:\n${breakdown}`,
   ].join("\n\n");
 
-  return callClaude(system, user, 260);
+  return callLLM(system, user, 260);
 }

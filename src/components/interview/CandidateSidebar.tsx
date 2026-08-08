@@ -49,95 +49,96 @@ export function CandidateSidebar() {
   return (
     <aside
       aria-label="Candidate profile"
-      className="flex h-full flex-col gap-6 overflow-y-auto border-border bg-sidebar p-5 lg:border-r"
+      className="flex h-full max-h-[calc(100vh-4.5rem)] flex-col gap-5 overflow-y-auto border-border bg-sidebar p-5 lg:border-r scrollbar-thin"
     >
       <header className="grid grid-cols-[auto_minmax(0,1fr)] items-center gap-3">
-        <div className="grid size-12 shrink-0 place-items-center rounded-xl bg-surface-raised font-display text-base font-semibold text-primary glow-emerald">
+        <div className="grid size-11 shrink-0 place-items-center rounded-2xl bg-gradient-to-br from-cyan-500 via-indigo-600 to-purple-600 font-display text-base font-bold text-white shadow-lg shadow-indigo-500/30 glow-multicolor">
           {initials(candidate.member.name)}
         </div>
         <div className="min-w-0">
-          <h2 className="truncate text-base font-semibold">{candidate.member.name}</h2>
+          <h2 className="truncate text-sm font-semibold">{candidate.member.name}</h2>
           <p className="truncate text-xs text-muted-foreground">
             {candidate.member.jobRole} · {candidate.member.yearsExperience} yrs
           </p>
         </div>
       </header>
 
-      <div className="flex flex-wrap items-center gap-2 text-[11px] font-mono text-muted-foreground">
-        <span className="inline-flex items-center gap-1.5 rounded-md bg-surface px-2 py-1 text-primary">
+      <div className="flex flex-wrap items-center gap-1.5 text-[11px] font-mono text-muted-foreground">
+        <span className="inline-flex items-center gap-1.5 rounded-md bg-surface px-2 py-0.5 text-primary">
           <Radio className="size-3 animate-pulse" aria-hidden />
           LIVE
         </span>
-        <span className="inline-flex items-center gap-1.5 rounded-md bg-surface px-2 py-1">
+        <span className="inline-flex items-center gap-1 rounded-md bg-surface px-2 py-0.5">
           <Clock className="size-3" aria-hidden />
           {elapsed(startedAt)}
         </span>
-        <span className="rounded-md bg-surface px-2 py-1">{sessionId}</span>
+        <span className="rounded-md bg-surface px-2 py-0.5 truncate max-w-[120px]">
+          {sessionId}
+        </span>
       </div>
 
-      <p className="rounded-md bg-surface px-3 py-2 text-xs text-muted-foreground">
+      <p className="rounded-md bg-surface px-3 py-2 text-xs text-muted-foreground leading-relaxed">
         {candidate.member.education} · {candidate.signals.commitDays} commit days ·{" "}
-        {candidate.signals.missionsCompleted} missions ({candidate.signals.missionsFirstTry} first
-        try)
+        {candidate.signals.missionsCompleted} missions
       </p>
 
-      <section aria-labelledby="progress-heading" className="panel p-4">
+      <section aria-labelledby="progress-heading" className="panel p-3.5">
         <div className="flex items-baseline justify-between">
           <h3
             id="progress-heading"
-            className="text-xs font-semibold uppercase tracking-widest text-muted-foreground"
+            className="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground"
           >
             Interview progress
           </h3>
-          <span className="font-mono text-sm text-primary">
+          <span className="font-mono text-xs text-primary font-bold">
             {answered}/{requiredQuestions}
           </span>
         </div>
         <Progress
           value={pct}
-          className="mt-3 h-2 bg-surface-raised"
+          className="mt-2 h-1.5 bg-surface-raised"
           aria-label={`${pct}% of required questions complete`}
         />
-        <p className="mt-2 text-xs text-muted-foreground">
-          {Math.max(0, requiredQuestions - answered)} required questions remaining
+        <p className="mt-1.5 text-[11px] text-muted-foreground">
+          {Math.max(0, requiredQuestions - answered)} questions remaining
         </p>
       </section>
 
-      <section aria-labelledby="modules-heading" className="space-y-3">
+      <section aria-labelledby="modules-heading" className="space-y-2">
         <h3
           id="modules-heading"
-          className="text-xs font-semibold uppercase tracking-widest text-muted-foreground"
+          className="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground"
         >
           Curriculum modules
         </h3>
-        <ul className="space-y-2">
+        <ul className="max-h-40 overflow-y-auto space-y-1.5 pr-1 scrollbar-thin">
           {modules.map((m) => (
-            <li key={m.name} className="panel px-3 py-2.5">
-              <div className="flex items-center justify-between gap-3">
-                <span className="min-w-0 truncate text-sm">{m.name}</span>
-                <span className="shrink-0 font-mono text-xs text-muted-foreground">
+            <li key={m.name} className="panel px-2.5 py-2">
+              <div className="flex items-center justify-between gap-2">
+                <span className="min-w-0 truncate text-xs font-medium">{m.name}</span>
+                <span className="shrink-0 font-mono text-[11px] text-muted-foreground">
                   {m.done}/{m.total}
                 </span>
               </div>
-              <Progress value={(m.done / m.total) * 100} className="mt-2 h-1 bg-surface-raised" />
+              <Progress value={(m.done / m.total) * 100} className="mt-1.5 h-1 bg-surface-raised" />
             </li>
           ))}
         </ul>
       </section>
 
-      <section aria-labelledby="topics-heading" className="space-y-3">
+      <section aria-labelledby="topics-heading" className="space-y-2">
         <div className="flex items-center justify-between gap-2">
           <h3
             id="topics-heading"
-            className="text-xs font-semibold uppercase tracking-widest text-muted-foreground"
+            className="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground"
           >
             Missions
           </h3>
-          <span className="font-mono text-[11px] text-muted-foreground">
+          <span className="font-mono text-[10px] text-muted-foreground">
             {attemptedCount} passed · {skippedCount} skipped
           </span>
         </div>
-        <ul className="space-y-1.5">
+        <ul className="max-h-60 overflow-y-auto space-y-1 pr-1 scrollbar-thin">
           {candidate.missions.map((m) => {
             const status = missionStatus.get(m.day) ?? "pending";
             const meta = statusMeta[status];
@@ -146,18 +147,18 @@ export function CandidateSidebar() {
             return (
               <li
                 key={m.day}
-                className="flex items-center gap-2.5 rounded-md px-2 py-1.5 hover:bg-surface"
+                className="flex items-center gap-2 rounded-md px-2 py-1 hover:bg-surface text-xs"
               >
-                <Icon className={`size-4 shrink-0 ${meta.className}`} aria-hidden />
-                <span className="min-w-0 flex-1 truncate text-sm text-foreground/90">
-                  <span className="font-mono text-[11px] text-muted-foreground">D{m.day}</span>{" "}
+                <Icon className={`size-3.5 shrink-0 ${meta.className}`} aria-hidden />
+                <span className="min-w-0 flex-1 truncate text-foreground/90">
+                  <span className="font-mono text-[10px] text-muted-foreground">D{m.day}</span>{" "}
                   {m.title}
                 </span>
                 <span className="sr-only">
                   {meta.label} · {moduleForDay(m.day)}
                 </span>
                 {typeof score === "number" && (
-                  <span className="shrink-0 font-mono text-[11px] text-muted-foreground">
+                  <span className="shrink-0 font-mono text-[10px] text-muted-foreground">
                     {score}
                   </span>
                 )}

@@ -1,14 +1,37 @@
-# AI System Prompts & Agent Specification — The Interview Agent
+# 🤖 AI Prompt Trajectory & Agent Engineering Log — The Interview Agent
 
-This document details all prompt templates, agent instructions, system roles, and evaluation criteria used by **The Interview Agent** across its multi-turn technical interview execution engine.
+## Executive Summary
+
+This document provides a sequential, commit-mapped record of all AI system prompts, developer prompts, LLM evaluation schemas, dynamic transition instructions, and RAG vector memory retrieval context used throughout the development of **The Interview Agent**.
 
 ---
 
-## 1. Answer Evaluation & Grading Prompt
+## 📅 Sequential Prompt Trajectory (Mapped to Commit History)
 
-**Target Function:** `scoreAnswerWithAI` ([`src/lib/ai.ts`](file:///c:/Users/gupta/Downloads/Abtalks-The-Interview-Agent-main/Abtalks-The-Interview-Agent-main/src/lib/ai.ts#L21))
+### Phase 1: Foundation & Data Architecture
+- **Commits:** [`b44fbe4`](https://github.com/toshit2006/Abtalks-The-Interview-Agent/commit/b44fbe4) · [`e3f723a`](https://github.com/toshit2006/Abtalks-The-Interview-Agent/commit/e3f723a)
+- **Objective:** Data modeling for the 31-day AI Cohort curriculum and candidate mission profiles.
 
-### System Instructions
+#### 1.1 Dataset Structuring Prompt
+> *"Structure the complete 31-day AI Cohort curriculum into a JSON dataset with day numbers (1–31), titles, module groupings (Modules 1–8), learning objectives, and enterprise AI tools used."*
+- **Output:** [`src/data/curriculum.json`](file:///c:/Users/gupta/Downloads/Abtalks-The-Interview-Agent-main/Abtalks-The-Interview-Agent-main/src/data/curriculum.json)
+
+#### 1.2 Candidate Signal Profile Prompt
+> *"Generate candidate profiles representing cohort participants (Sarah Johnson, Alex Turner, Emily Chen, David Miller, Tyler Brooks) with completed missions, commit days, years of experience, skipped topics, and first-try clearance rates."*
+- **Output:** [`src/data/candidates.json`](file:///c:/Users/gupta/Downloads/Abtalks-The-Interview-Agent-main/Abtalks-The-Interview-Agent-main/src/data/candidates.json)
+
+#### 1.3 State Machine Requirement Directive
+> *"Implement an interview planning function (`buildQuestionPlan`) that guarantees a minimum of 8 questions spanning at least 4 distinct curriculum days based on candidate weak points."*
+- **Output:** [`src/lib/interview-engine.ts`](file:///c:/Users/gupta/Downloads/Abtalks-The-Interview-Agent-main/Abtalks-The-Interview-Agent-main/src/lib/interview-engine.ts)
+
+---
+
+### Phase 2: Core Interview Engine & LLM Grader Schemas
+- **Commits:** [`6864e99`](https://github.com/toshit2006/Abtalks-The-Interview-Agent/commit/6864e99) · [`600ec1b`](https://github.com/toshit2006/Abtalks-The-Interview-Agent/commit/600ec1b)
+- **Objective:** Real-time answer evaluation, scoring heuristics, and unattended session state handling.
+
+#### 2.1 Technical Answer Grader System Prompt
+- **Target Function:** `scoreAnswerWithAI` ([`src/lib/ai.ts`](file:///c:/Users/gupta/Downloads/Abtalks-The-Interview-Agent-main/Abtalks-The-Interview-Agent-main/src/lib/ai.ts#L21))
 ```
 You are a senior technical interviewer grading a candidate's spoken answer during a live technical interview.
 Grade the answer strictly against the target curriculum learning objective.
@@ -21,24 +44,18 @@ Output ONLY valid JSON matching this schema:
 }
 ```
 
-### User Input Prompt Context
-```
-Candidate Role: {candidate.member.jobRole}, {candidate.member.yearsExperience} years experience.
-Curriculum Day: Day {question.day} · {question.dayTitle} ({question.module})
-Learning Objective: {question.objective}
-Difficulty: {question.difficulty}
-
-Question Asked: {question.prompt}
-Candidate's Answer: {answer}
-```
+#### 2.2 Unattended Session Evaluation Safeguard Prompt
+- **Target Function:** `buildFinalEvaluation` ([`src/lib/interview-engine.ts`](file:///c:/Users/gupta/Downloads/Abtalks-The-Interview-Agent-main/Abtalks-The-Interview-Agent-main/src/lib/interview-engine.ts#L148))
+> *"If an interview session ends with 0 live questions answered (`results.length === 0`), return zero scores (`overall: 0, conceptualDepth: 0, communication: 0`) and an unassessed summary instead of synthetic baseline scores."*
 
 ---
 
-## 2. Dynamic Adaptive Transition & Follow-Up Prompt
+### Phase 3: Adaptive Transition & RAG Vector Memory Integration
+- **Commits:** [`e9c7554`](https://github.com/toshit2006/Abtalks-The-Interview-Agent/commit/e9c7554) · [`cb1d5f4`](https://github.com/toshit2006/Abtalks-The-Interview-Agent/commit/cb1d5f4)
+- **Objective:** Context-aware dynamic follow-up generation and vector retrieval via Qdrant Cloud.
 
-**Target Function:** `writeTransitionWithAI` ([`src/lib/ai.ts`](file:///c:/Users/gupta/Downloads/Abtalks-The-Interview-Agent-main/Abtalks-The-Interview-Agent-main/src/lib/ai.ts#L84))
-
-### System Instructions
+#### 3.1 Spoken-Style Adaptive Transition System Prompt
+- **Target Function:** `writeTransitionWithAI` ([`src/lib/ai.ts`](file:///c:/Users/gupta/Downloads/Abtalks-The-Interview-Agent-main/Abtalks-The-Interview-Agent-main/src/lib/ai.ts#L84))
 ```
 You are a warm but rigorous senior technical interviewer conducting a live, spoken-style interview.
 Write ONLY the interviewer's next message — no labels, no markdown, no meta-commentary.
@@ -48,76 +65,66 @@ Then ask the next question in your own words — keep the same technical intent 
 Keep the whole message under 60 words. No greetings.
 ```
 
-### User Input Prompt Context
-```
-Candidate: {candidate.member.jobRole}, {candidate.member.yearsExperience} yrs.
-Last answer score: {lastResult.score}/100 on "{lastResult.dayTitle}". Grader note: {lastResult.feedback}
-Retrieved Vector RAG Context: {ragContext}
-Recent Transcript: {transcript}
-Next Planned Question: (Day {nextQuestion.day} · {nextQuestion.dayTitle}, {nextQuestion.difficulty}): {nextQuestion.prompt}
-```
-
----
-
-## 3. Personalized Session Opening Prompt
-
-**Target Function:** `writeOpeningWithAI` ([`src/lib/ai.ts`](file:///c:/Users/gupta/Downloads/Abtalks-The-Interview-Agent-main/Abtalks-The-Interview-Agent-main/src/lib/ai.ts#L119))
-
-### System Instructions
-```
-You are a senior technical interviewer opening a live interview.
-Write ONLY the interviewer's opening message — no labels, no markdown.
-Briefly (one sentence) welcome the candidate by first name and set expectations for a conversational technical interview grounded in their own cohort work.
-Then ask the first question in your own words, keeping the same technical intent as the provided question.
-Under 55 words total.
-```
-
-### User Input Prompt Context
-```
-Candidate: {candidate.member.name}, {candidate.member.jobRole}, {candidate.member.yearsExperience} yrs.
-Retrieved Vector Context: {ragContext}
-First question: (Day {firstQuestion.day} · {firstQuestion.dayTitle}): {firstQuestion.prompt}
+#### 3.2 Qdrant Vector Retrieval Prompt Schema
+- **Target Component:** `qdrant.ts` ([`src/lib/qdrant.ts`](file:///c:/Users/gupta/Downloads/Abtalks-The-Interview-Agent-main/Abtalks-The-Interview-Agent-main/src/lib/qdrant.ts))
+```json
+{
+  "collection": "interview_curriculum",
+  "vector_dimensions": 64,
+  "distance_metric": "Cosine",
+  "payload_format": {
+    "day": "number",
+    "dayTitle": "string",
+    "module": "string",
+    "objectives": "string[]",
+    "content": "string"
+  },
+  "search_threshold": 0.45,
+  "top_k": 3
+}
 ```
 
 ---
 
-## 4. Executive Feedback Summary Synthesis Prompt
+### Phase 4: UI/UX Aesthetic Overhaul & Layout Polish
+- **Commits:** [`937eef7`](https://github.com/toshit2006/Abtalks-The-Interview-Agent/commit/937eef7) · [`f0c7846`](https://github.com/toshit2006/Abtalks-The-Interview-Agent/commit/f0c7846)
+- **Objective:** Modern Claude/Vercel-inspired glassmorphism, responsive scrollbars, and telemetry drawers.
 
-**Target Function:** `writeFinalSummaryWithAI` ([`src/lib/ai.ts`](file:///c:/Users/gupta/Downloads/Abtalks-The-Interview-Agent-main/Abtalks-The-Interview-Agent-main/src/lib/ai.ts#L144))
+#### 4.1 Ambient Light Orbs & Particle Canvas Prompt
+> *"Create a LiveBackgroundCanvas component with 3 keyframe-animated floating light orbs and an HTML5 45-particle neural network mesh canvas to elevate the application's aesthetic."*
+- **Output:** [`LiveBackgroundCanvas.tsx`](file:///c:/Users/gupta/Downloads/Abtalks-The-Interview-Agent-main/Abtalks-The-Interview-Agent-main/src/components/layout/LiveBackgroundCanvas.tsx)
 
-### System Instructions
+#### 4.2 Curriculum Matrix Workspace Redesign Prompt
+> *"Redesign the Curriculum Matrix into an executive workspace featuring search input, status filter pills, module tab selectors (Modules 1–8 with distinct color themes), mastery progress ring, and Day Deep Dive detail dialogs."*
+- **Output:** [`CurriculumMatrix.tsx`](file:///c:/Users/gupta/Downloads/Abtalks-The-Interview-Agent-main/Abtalks-The-Interview-Agent-main/src/components/interview/CurriculumMatrix.tsx)
+
+#### 4.3 Sidebar Scroll Container Layout Prompt
+> *"Constrain the candidate missions list in CandidateSidebar to a fixed-height container (`max-h-60 overflow-y-auto scrollbar-thin`) and restrict SessionStatusBar strictly to the live interview tab so it never overlaps the footer."*
+- **Output:** [`CandidateSidebar.tsx`](file:///c:/Users/gupta/Downloads/Abtalks-The-Interview-Agent-main/Abtalks-The-Interview-Agent-main/src/components/interview/CandidateSidebar.tsx) & [`src/routes/index.tsx`](file:///c:/Users/gupta/Downloads/Abtalks-The-Interview-Agent-main/Abtalks-The-Interview-Agent-main/src/routes/index.tsx)
+
+---
+
+### Phase 5: Stage 4 Steer Challenge & Verification Audit
+- **Commits:** [`6081ad4`](https://github.com/toshit2006/Abtalks-The-Interview-Agent/commit/6081ad4) · [`3b9f786`](https://github.com/toshit2006/Abtalks-The-Interview-Agent/commit/3b9f786)
+- **Objective:** Final evaluation readiness, automated verification test suite, and Vercel configuration.
+
+#### 5.1 Stage 4 Steer Challenge Simulator Prompt
+> *"Build a LiveSteerSimulator component allowing 20-minute unseen feature request testing with dynamic prompt steering controls."*
+- **Output:** [`LiveSteerSimulator.tsx`](file:///c:/Users/gupta/Downloads/Abtalks-The-Interview-Agent-main/Abtalks-The-Interview-Agent-main/src/components/interview/LiveSteerSimulator.tsx)
+
+#### 5.2 Executive Feedback Report Summary Prompt
+- **Target Function:** `writeFinalSummaryWithAI` ([`src/lib/ai.ts`](file:///c:/Users/gupta/Downloads/Abtalks-The-Interview-Agent-main/Abtalks-The-Interview-Agent-main/src/lib/ai.ts#L144))
 ```
 You are a senior technical interviewer writing the summary paragraph of a structured feedback report.
 Write ONLY the summary paragraph, 2-4 sentences, no markdown, no headers.
 Be specific and evidence-based — reference actual topics from the results, not generic praise.
 ```
 
-### User Input Prompt Context
-```
-Candidate: {candidate.member.name}, {candidate.member.jobRole}, {candidate.member.yearsExperience} yrs.
-Overall {scores.overall}/100, conceptual depth {scores.conceptualDepth}/100, communication {scores.communication}/100.
-Per-question results: {breakdown}
-```
-
 ---
 
-## 5. RAG Vector Memory Context Structuring
+## 🎯 Verification Log
 
-**Target Component:** Qdrant Cloud Collection `interview_curriculum` & `candidate_answers` ([`src/lib/qdrant.ts`](file:///c:/Users/gupta/Downloads/Abtalks-The-Interview-Agent-main/Abtalks-The-Interview-Agent-main/src/lib/qdrant.ts))
-
-### Document Payload Format
-```json
-{
-  "day": 12,
-  "dayTitle": "Prompt Engineering Fundamentals",
-  "module": "Module 3",
-  "objectives": ["System prompt design", "Few-shot structured output parsing"],
-  "tools": ["LangChain", "Groq API"],
-  "content": "Day 12: Prompt Engineering Fundamentals. Learn system prompt design, few-shot prompting, and JSON mode extraction."
-}
-```
-
-### Vector Search Retrieval Strategy
-- Top $k = 3$ cosine similarity search.
-- Score threshold $\ge 0.45$.
-- Relevant vectors injected directly into `ragContext` parameter during LLM turn generation.
+- **Automated Integration Test:** `npx tsx src/lib/test-interview.ts` — **100% Passed**
+- **Linter Check:** `npm run lint` — **0 errors**
+- **TypeScript Type Safety:** `npx tsc --noEmit` — **0 errors**
+- **Production Build:** `npm run build` — **0 errors**

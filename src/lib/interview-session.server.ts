@@ -83,6 +83,16 @@ async function finalize(sessionId: string, session: Session): Promise<InterviewR
   return { reply: "Interview completed.", done: true, feedback: evaluation };
 }
 
+function isValidCandidate(candidate: unknown): candidate is CandidateProfile {
+  return (
+    typeof candidate === "object" &&
+    candidate !== null &&
+    Array.isArray((candidate as CandidateProfile).missions) &&
+    typeof (candidate as CandidateProfile).member === "object" &&
+    (candidate as CandidateProfile).member !== null
+  );
+}
+
 export async function handleInterviewTurn(body: InterviewRequest): Promise<InterviewResponse> {
   const sessionId = body.sessionId;
   if (!sessionId) return { reply: "Missing sessionId.", done: false };
@@ -90,6 +100,12 @@ export async function handleInterviewTurn(body: InterviewRequest): Promise<Inter
   let session = sessions.get(sessionId);
 
   if (!session) {
+    if (body.candidate !== undefined && !isValidCandidate(body.candidate)) {
+      return {
+        reply: "Invalid candidate payload: expected a candidate object with a missions array.",
+        done: false,
+      };
+    }
     const candidate = body.candidate ?? getCandidate();
     session = {
       candidate,

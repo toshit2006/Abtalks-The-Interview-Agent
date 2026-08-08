@@ -175,3 +175,35 @@
     letter-spacing: -0.02em;
   }
 }
+
+/* Print styles for the report export action. */
+@media print {
+  :root {
+    --background: oklch(1 0 0);
+    --foreground: oklch(0.2 0.01 258);
+    --surface: oklch(0.98 0.005 258);
+    --surface-raised: oklch(0.96 0.005 258);
+    --card: oklch(1 0 0);
+    --card-foreground: oklch(0.2 0.01 258);
+    --muted: oklch(0.95 0.005 258);
+    --muted-foreground: oklch(0.45 0.02 258);
+    --border: oklch(0.85 0.01 258);
+  }
+
+  body {
+    background-image: none !important;
+  }
+
+  .panel,
+  .glow-emerald,
+  .glow-violet {
+    box-shadow: none !important;
+    break-inside: avoid;
+  }
+
+  * {
+    color-adjust: exact;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+}

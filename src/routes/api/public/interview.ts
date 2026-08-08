@@ -15,7 +15,15 @@ export const Route = createFileRoute("/api/public/interview")({
         if (!body?.sessionId) {
           return Response.json({ reply: "sessionId is required.", done: false }, { status: 400 });
         }
-        return Response.json(await handleInterviewTurn(body));
+        try {
+          return Response.json(await handleInterviewTurn(body));
+        } catch (err) {
+          console.error("handleInterviewTurn failed:", err);
+          return Response.json(
+            { reply: "Could not process that request.", done: false },
+            { status: 400 },
+          );
+        }
       },
     },
   },

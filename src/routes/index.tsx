@@ -1,8 +1,8 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
-import { Menu } from "lucide-react";
+import { Menu, X } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Sheet, SheetContent, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
+import { Sheet, SheetClose, SheetContent, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { CandidateSidebar } from "@/components/interview/CandidateSidebar";
 import { SessionStatusBar } from "@/components/interview/SessionStatusBar";
@@ -38,14 +38,14 @@ function Index() {
   const [candidateId, setCandidateId] = useState(candidates[0]?.member.id ?? "");
   return (
     <InterviewProvider key={candidateId} candidateId={candidateId}>
-      <div className="flex min-h-screen flex-col">
-        <div className="flex-1 lg:grid lg:grid-cols-[320px_minmax(0,1fr)] lg:items-start">
-          <div className="hidden lg:sticky lg:top-0 lg:block lg:h-screen">
+      <div className="min-h-screen">
+        <div className="lg:grid lg:grid-cols-[320px_minmax(0,1fr)] lg:items-start">
+          <div className="hidden lg:sticky lg:top-0 lg:block lg:max-h-screen print:hidden">
             <CandidateSidebar />
           </div>
 
           <main className="min-w-0 px-4 py-5 sm:px-8 sm:py-8">
-            <header className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-4">
+            <header className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-4 print:hidden">
               <div className="min-w-0">
                 <p className="font-mono text-[11px] uppercase tracking-[0.2em] text-muted-foreground">
                   Session console
@@ -85,19 +85,35 @@ function Index() {
                     <Menu className="size-4" aria-hidden />
                   </Button>
                 </SheetTrigger>
-                <SheetContent side="left" className="w-[320px] max-w-[85vw] bg-sidebar p-0">
-                  <SheetTitle className="sr-only">Candidate profile</SheetTitle>
-                  <CandidateSidebar />
+                <SheetContent
+                  side="left"
+                  showClose={false}
+                  className="flex w-[320px] max-w-[85vw] flex-col bg-sidebar p-0"
+                >
+                  <div className="relative flex shrink-0 items-center justify-between gap-3 border-b border-border px-4 py-4">
+                    <SheetTitle className="text-sm font-semibold text-foreground">
+                      Candidate profile
+                    </SheetTitle>
+                    <SheetClose
+                      aria-label="Close candidate profile"
+                      className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg text-muted-foreground outline-none transition-colors hover:bg-surface hover:text-primary focus-visible:ring-2 focus-visible:ring-primary/50 active:scale-95"
+                    >
+                      <X className="size-5" aria-hidden />
+                    </SheetClose>
+                  </div>
+                  <div className="min-h-0 flex-1">
+                    <CandidateSidebar />
+                  </div>
                 </SheetContent>
               </Sheet>
             </header>
 
-            <div className="mt-6">
+            <div className="mt-6 print:hidden">
               <SessionStatusBar onEnd={() => setTab("report")} />
             </div>
 
             <Tabs value={tab} onValueChange={setTab} className="mt-5">
-              <TabsList className="h-auto w-full justify-start gap-1 overflow-x-auto rounded-lg bg-surface p-1 sm:w-auto">
+              <TabsList className="h-auto w-full justify-start gap-1 overflow-x-auto rounded-lg bg-surface p-1 sm:w-auto print:hidden">
                 <TabsTrigger
                   value="live"
                   className="rounded-md px-4 py-2 text-sm data-[state=active]:bg-surface-raised data-[state=active]:text-primary"
@@ -142,7 +158,9 @@ function Index() {
           </main>
         </div>
 
-        <SiteFooter onNavigate={setTab} />
+        <div className="print:hidden">
+          <SiteFooter onNavigate={setTab} />
+        </div>
       </div>
     </InterviewProvider>
   );

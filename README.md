@@ -6,7 +6,7 @@
 
 > _Task:_ Create the main application layout and design system for "The Interview Agent" hackathon app.
 
-> _Tech Stack:_ Next.js App Router, Tailwind CSS, Lucide React Icons, Radix UI / Shadcn.
+> _Tech Stack:_ TanStack Start, Tailwind CSS, Lucide React Icons, Radix UI / Shadcn.
 
 > _UI Style:_ Modern Dark Mode, Enterprise AI aesthetic (slate-900 background, subtle glowing emerald/violet borders, high contrast text, sharp typography).
 

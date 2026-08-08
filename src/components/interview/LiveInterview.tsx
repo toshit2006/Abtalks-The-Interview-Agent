@@ -121,26 +121,51 @@ export function LiveInterview() {
 
       <section aria-label="Live transcript" className="panel divide-y divide-border">
         <div ref={feedRef} className="max-h-[420px] divide-y divide-border overflow-y-auto">
-          {messages.map((line) => (
-            <article key={line.id} className="grid grid-cols-[auto_minmax(0,1fr)] gap-3 p-4">
+          {messages.map((line) => {
+            const isCandidate = line.role !== "agent";
+            const avatar = (
               <span
                 className={`grid size-8 shrink-0 place-items-center rounded-lg text-[11px] font-semibold ${
-                  line.role === "agent" ? "bg-accent/15 text-accent" : "bg-primary/15 text-primary"
+                  isCandidate ? "bg-primary/15 text-primary" : "bg-accent/15 text-accent"
                 }`}
                 aria-hidden
               >
-                {line.role === "agent" ? "AI" : "YOU"}
+                {isCandidate ? "YOU" : "AI"}
               </span>
-              <div className="min-w-0">
+            );
+            const body = (
+              <div className={`min-w-0 ${isCandidate ? "text-right" : ""}`}>
                 <p className="font-mono text-[11px] uppercase tracking-wider text-muted-foreground">
-                  {line.role === "agent" ? "Interview Agent" : "Candidate"} · {line.at}
+                  {isCandidate ? "Candidate" : "Interview Agent"} · {line.at}
                 </p>
                 <p className="mt-1 whitespace-pre-wrap text-sm leading-relaxed text-foreground/90">
                   {line.text}
                 </p>
               </div>
-            </article>
-          ))}
+            );
+            return (
+              <article
+                key={line.id}
+                className={`grid gap-3 p-4 ${
+                  isCandidate
+                    ? "grid-cols-[minmax(0,1fr)_auto] bg-surface/40"
+                    : "grid-cols-[auto_minmax(0,1fr)]"
+                }`}
+              >
+                {isCandidate ? (
+                  <>
+                    {body}
+                    {avatar}
+                  </>
+                ) : (
+                  <>
+                    {avatar}
+                    {body}
+                  </>
+                )}
+              </article>
+            );
+          })}
           {!messages.length && (
             <p className="p-4 text-sm text-muted-foreground">Connecting to the interview agent…</p>
           )}

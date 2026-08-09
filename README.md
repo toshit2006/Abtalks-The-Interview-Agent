@@ -1,58 +1,112 @@
-# Interview Assistant Dashboard
+# 🤖 The Interview Agent — AB Talks AI Engineering Cohort
 
-> _Role:_ Senior Frontend Engineer & UI/UX Specialist.
+> **Official Live Production Deployment:** 🚀 [https://abtalks-the-interview-agent.vercel.app/](https://abtalks-the-interview-agent.vercel.app/)
 
-> _Task:_ Create the main application layout and design system for "The Interview Agent" hackathon app.
+[![Live Demo](https://img.shields.io/badge/Live_Demo-Vercel_Production-000000?style=for-the-badge&logo=vercel&logoColor=white)](https://abtalks-the-interview-agent.vercel.app/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.8-3178C6?style=for-the-badge&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
+[![TanStack](https://img.shields.io/badge/TanStack-Start-FF4154?style=for-the-badge&logo=react&logoColor=white)](https://tanstack.com/)
+[![Groq](https://img.shields.io/badge/Groq_LLM-Llama_3.3_70B-F05032?style=for-the-badge&logo=groq&logoColor=white)](https://groq.com/)
+[![Qdrant](https://img.shields.io/badge/Qdrant-Cloud_Vector_RAG-DC2626?style=for-the-badge&logo=qdrant&logoColor=white)](https://qdrant.tech/)
 
-> _Tech Stack:_ TanStack Start, Tailwind CSS, Lucide React Icons, Radix UI / Shadcn.
+---
 
-> _UI Style:_ Modern Dark Mode, Enterprise AI aesthetic (slate-900 background, subtle glowing emerald/violet borders, high contrast text, sharp typography).
+## 🌟 Executive Overview
 
-> _Deliverable:_
+**The Interview Agent** is an enterprise-grade, full-stack AI evaluation platform built for the **AB Talks AI Engineering Cohort Hackathon**. It automates candidate technical assessments across a 31-day curriculum syllabus (8 modules), combining real-time LLM grading, vector RAG memory retrieval, AST syntax validation, and live prompt steering capabilities.
 
-> Create a sleek dashboard layout with two primary zones:
+---
 
-> 1. _Sidebar / Candidate Profile Drawer:_ Displays candidate name, completed modules, attempted vs skipped topics, and an live interview progress bar (0/8 required questions).
+## 🚀 Live Demo & Key Links
 
-> 2. _Main Workspace:_ A responsive container that switches smoothly between three tabs: "Live Interview", "Curriculum Matrix", and "Post-Interview Report".
+- **Production App:** [abtalks-the-interview-agent.vercel.app](https://abtalks-the-interview-agent.vercel.app/)
+- **Prompt Engineering Journal:** [PROMPTS.md](./PROMPTS.md) *(Complete 13-phase vibe-coding log and iteration records)*
+- **GitHub Repository:** [github.com/toshit2006/Abtalks-The-Interview-Agent](https://github.com/toshit2006/Abtalks-The-Interview-Agent)
 
-> Make sure it's clean, accessible, and responsive. Use CSS variables for theme colors.
+---
 
-This project was built with [Lovable](https://lovable.dev).
+## 🏛️ Platform Architecture & 4-Stage Workflow
 
-## Build with Lovable
-
-Continue developing this project in the [Lovable editor](https://lovable.dev/projects/e2b83d4d-95dc-4d4f-a718-8cd33b695232).
-
-- **Ship faster**: describe what you want to build and Lovable handles the code.
-- **Stay in sync**: every change made in Lovable is committed straight to this repository.
-- **Full ownership**: this code is yours. Push to `main` on GitHub and your changes sync back into Lovable, ready for your next prompt.
-
-## Development
-
-Prefer working locally? You need Node.js and npm — [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating).
-
-```sh
-git clone <this-repository-url>
-cd <repository-name>
-npm i
-npm run dev
+```
+┌─────────────────────────────────────────────────────────────────────────┐
+│                        AB TALKS INTERVIEW AGENT                         │
+└─────────────────────────────────────────────────────────────────────────┘
+        │                     │                     │                     │
+        ▼                     ▼                     ▼                     ▼
+┌──────────────┐      ┌──────────────┐      ┌──────────────┐      ┌──────────────┐
+│   STAGE 1    │      │   STAGE 2    │      │   STAGE 3    │      │   STAGE 4    │
+│ Curriculum   │ ───► │   Live AI    │ ───► │    Talent    │ ───► │  Live Steer  │
+│    Matrix    │      │  Interview   │      │  Analytics   │      │   Sandbox    │
+└──────────────┘      └──────────────┘      └──────────────┘      └──────────────┘
+  31 Curriculum        Groq Llama-70B         Recharts Cohort        Real-time AST
+  Modules Tracking      Speech & Sandbox      Analytics & Heatmap   3-Judge Consensus
 ```
 
-## AI-powered interviewing (optional)
+### 1. **Stage 1: Curriculum Matrix**
+- Tracks 31-day curriculum mastery across 8 modules.
+- Displays candidate completion, attempted topics, skipped missions, and score breakdowns.
 
-Copy `.env.example` to `.env` and set `GROQ_API_KEY` to have the agent
-use Groq API for:
+### 2. **Stage 2: Live AI Technical Interviewer**
+- **Adaptive Interview Engine:** Groq Llama-3.3-70B adaptive multi-turn questioning.
+- **Voice & Speech Engine:** Real-time microphone speech recognition with a 16-bar dynamic spectrum visualizer and Web Speech API audio playback.
+- **Interactive AI Code Sandbox:** Integrated code editor supporting Python 3.11, TypeScript 5.8, and SQL with real-time AST complexity analysis.
 
-- grading each answer against the curriculum objective it's tied to,
-- writing the next question/follow-up in reaction to what the candidate
-  actually said (real adaptive interviewing, not templated phrasing), and
-- writing the final report's summary paragraph.
+### 3. **Stage 3: Talent Analytics Portal & Candidate Inspection**
+- **Cohort Benchmarks:** Recharts Score Distribution Bar Chart, Module Mastery Bar Chart, and Cohort Hiring Breakdown Donut Chart (`PieChart`).
+- **31-Day GitHub-style Heatmap:** Interactive candidate inspection modal with 31-day activity squares and hover tooltips.
+- **Data Export:** Instant CSV roster download for hiring managers.
 
-Additionally, set `QDRANT_URL` for vector similarity RAG memory retrieval across curriculum topics and candidate answers.
+### 4. **Stage 4: Live Steer Challenge Simulator**
+- **AST Parser & Validator:** Stack-based bracket syntax checking (`{`, `(`, `[` vs `}`, `)`, `]`) and structural keyword export assertions.
+- **Dynamic 3-Judge Consensus Panel:** Computes dynamic Judge A (AST Quality), Judge B (Architecture), and Lead Judge consensus scores in real-time.
 
-Without a key, the app still works fully offline: `src/lib/interview-engine.ts`
-provides a deterministic heuristic scorer and templated question phrasing so
-the whole flow (8+ questions, 4+ curriculum days, structured feedback) runs
-without any external calls. See `src/lib/ai.ts` for the integration and its
-fallback contract.
+---
+
+## 🛠️ Technology Stack
+
+- **Framework:** TanStack Start / Vite / Nitro Full-Stack React Framework
+- **LLM Engine:** Groq API (`llama-3.3-70b-versatile`)
+- **Vector Database (RAG):** Qdrant Cloud (64-dim float Cosine vector search)
+- **Database & Auth:** Neon Serverless PostgreSQL & JWT session authentication
+- **Styling & UI:** Vanilla CSS, Tailwind CSS 4, Radix UI / Shadcn primitives, Lucide Icons
+- **Visualizations:** Recharts (Bar Charts, Donut Pie Charts, Cartesian Grids)
+
+---
+
+## 💻 Local Development Setup
+
+### 1. Prerequisites
+- Node.js `v18+` or `Bun` installed
+
+### 2. Clone & Install
+```bash
+git clone https://github.com/toshit2006/Abtalks-The-Interview-Agent.git
+cd Abtalks-The-Interview-Agent
+npm install
+```
+
+### 3. Environment Variables Configuration
+Copy `.env.example` to `.env`:
+```env
+# Groq LLM API Key (Optional — fallback deterministic engine used if omitted)
+GROQ_API_KEY="gsk_..."
+
+# Qdrant Cloud Vector Database (Optional — RAG fallback used if omitted)
+QDRANT_URL="https://your-qdrant-cluster.cloud.qdrant.io:6333"
+QDRANT_API_KEY="your-qdrant-api-key"
+
+# Neon PostgreSQL Database (Optional — mock auth session fallback used if omitted)
+DATABASE_URL="postgresql://user:pass@ep-cool-db.us-east-2.aws.neon.tech/neondb?sslmode=require"
+```
+
+### 4. Run Development Server
+```bash
+npm run dev
+```
+Open [http://localhost:3000](http://localhost:3000) in your browser.
+
+---
+
+## 📄 License & Credits
+
+Built for the **AB Talks AI Engineering Cohort Hackathon**. All rights reserved.
+

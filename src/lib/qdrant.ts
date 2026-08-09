@@ -96,6 +96,19 @@ export async function ensureCollection(
   }
 }
 
+/** Converts arbitrary string keys into valid Qdrant point IDs (unsigned integers or UUIDs). */
+export function stringToPointId(id: string | number): number | string {
+  if (typeof id === "number") return Math.abs(Math.floor(id));
+  const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+  if (uuidRegex.test(id)) return id;
+
+  let hash = 5381;
+  for (let i = 0; i < id.length; i++) {
+    hash = (hash * 33) ^ id.charCodeAt(i);
+  }
+  return Math.abs(hash >>> 0);
+}
+
 /** Upsert points into a Qdrant vector collection. */
 export async function upsertPoints(
   collectionName: string,
@@ -104,11 +117,16 @@ export async function upsertPoints(
   if (!qdrantEnabled() || !points.length) return false;
   const baseUrl = getQdrantUrl();
 
+  const sanitizedPoints = points.map((p) => ({
+    ...p,
+    id: stringToPointId(p.id),
+  }));
+
   try {
     const res = await fetch(`${baseUrl}/collections/${collectionName}/points?wait=true`, {
       method: "PUT",
       headers: getHeaders(),
-      body: JSON.stringify({ points }),
+      body: JSON.stringify({ points: sanitizedPoints }),
     });
 
     if (!res.ok) {

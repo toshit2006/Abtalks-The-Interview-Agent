@@ -51,14 +51,16 @@ function Index() {
     setTab("live");
   };
 
+  const showSidebar = tab === "live" || tab === "matrix" || tab === "report";
+
   return (
     <InterviewProvider key={candidateId} candidateId={candidateId}>
-      <div className="relative min-h-screen text-foreground overflow-x-hidden">
+      <div className="relative min-h-screen text-foreground overflow-x-hidden pt-14">
         {/* Animated Dynamic Neural Light Orbs & Particles */}
         <LiveBackgroundCanvas />
         {/* AB Talks Official Top Navbar */}
-        <header className="sticky top-0 z-40 border-b border-indigo-500/20 bg-slate-950/90 backdrop-blur-xl print:hidden">
-          <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3 sm:px-6">
+        <header className="fixed top-0 inset-x-0 z-50 h-14 border-b border-indigo-500/20 bg-slate-950/95 backdrop-blur-xl print:hidden">
+          <div className="mx-auto flex h-full max-w-7xl items-center justify-between px-4 sm:px-6">
             <div className="flex items-center gap-3">
               <button
                 onClick={() => setTab("welcome")}
@@ -152,61 +154,53 @@ function Index() {
             <div className="flex items-center gap-3">
               <AuthModal />
 
-              <Sheet>
-                <SheetTrigger asChild>
-                  <Button
-                    variant="secondary"
-                    size="icon"
-                    className="lg:hidden"
-                    aria-label="Open sidebar"
-                  >
-                    <Menu className="size-4" aria-hidden />
-                  </Button>
-                </SheetTrigger>
-                <SheetContent
-                  side="left"
-                  showClose={false}
-                  className="flex w-[320px] max-w-[85vw] flex-col bg-sidebar p-0"
-                >
-                  <div className="relative flex shrink-0 items-center justify-between gap-3 border-b border-border px-4 py-4">
-                    <SheetTitle className="text-sm font-semibold text-foreground">
-                      Candidate Profile
-                    </SheetTitle>
-                    <SheetClose
-                      aria-label="Close sidebar"
-                      className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg text-muted-foreground outline-none transition-colors hover:bg-surface hover:text-primary focus-visible:ring-2 focus-visible:ring-primary/50 active:scale-95"
+              {showSidebar && (
+                <Sheet>
+                  <SheetTrigger asChild>
+                    <Button
+                      variant="secondary"
+                      size="icon"
+                      className="lg:hidden"
+                      aria-label="Open sidebar"
                     >
-                      <X className="size-5" aria-hidden />
-                    </SheetClose>
-                  </div>
-                  <div className="min-h-0 flex-1">
-                    <CandidateSidebar />
-                  </div>
-                </SheetContent>
-              </Sheet>
+                      <Menu className="size-4" aria-hidden />
+                    </Button>
+                  </SheetTrigger>
+                  <SheetContent
+                    side="left"
+                    showClose={false}
+                    className="flex w-[320px] max-w-[85vw] flex-col bg-sidebar p-0"
+                  >
+                    <div className="relative flex shrink-0 items-center justify-between gap-3 border-b border-border px-4 py-4">
+                      <SheetTitle className="text-sm font-semibold text-foreground">
+                        Candidate Profile
+                      </SheetTitle>
+                      <SheetClose
+                        aria-label="Close sidebar"
+                        className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg text-muted-foreground outline-none transition-colors hover:bg-surface hover:text-primary focus-visible:ring-2 focus-visible:ring-primary/50 active:scale-95"
+                      >
+                        <X className="size-5" aria-hidden />
+                      </SheetClose>
+                    </div>
+                    <div className="min-h-0 flex-1">
+                      <CandidateSidebar />
+                    </div>
+                  </SheetContent>
+                </Sheet>
+              )}
             </div>
           </div>
         </header>
 
         {/* Main Application Container */}
-        <div
-          className={
-            tab === "welcome" ? "" : "lg:grid lg:grid-cols-[320px_minmax(0,1fr)] lg:items-start"
-          }
-        >
-          {tab !== "welcome" && (
-            <div className="hidden lg:sticky lg:top-14 lg:block lg:max-h-[calc(100vh-4rem)] lg:overflow-hidden z-10 print:hidden">
+        <div>
+          {showSidebar && (
+            <div className="hidden lg:block fixed top-14 left-0 bottom-0 w-80 z-30 print:hidden">
               <CandidateSidebar />
             </div>
           )}
 
-          <main className="min-w-0 px-4 py-6 sm:px-8">
-            {tab === "live" && (
-              <div className="mb-6 print:hidden">
-                <SessionStatusBar onEnd={() => setTab("report")} />
-              </div>
-            )}
-
+          <main className={`min-w-0 px-4 py-6 sm:px-8 ${showSidebar ? "lg:ml-80" : ""}`}>
             {tab === "welcome" && (
               <InterviewSetupWizard
                 selectedCandidateId={candidateId}
@@ -218,7 +212,7 @@ function Index() {
               />
             )}
 
-            {tab === "live" && <LiveInterview />}
+            {tab === "live" && <LiveInterview onEndSession={() => setTab("report")} />}
             {tab === "matrix" && <CurriculumMatrix />}
             {tab === "report" && <PostInterviewReport />}
             {tab === "analytics" && <TalentAnalyticsPortal />}
@@ -226,7 +220,7 @@ function Index() {
           </main>
         </div>
 
-        <div className="print:hidden">
+        <div className={`print:hidden ${showSidebar ? "lg:ml-80" : ""}`}>
           <SiteFooter
             onNavigate={(t) =>
               setTab(t as "welcome" | "live" | "matrix" | "report" | "analytics" | "steer")

@@ -1,4 +1,4 @@
-import { createContext, useContext, useMemo, useRef, useState, type ReactNode } from "react";
+import { createContext, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { getCandidate } from "@/lib/curriculum";
 import {
   REQUIRED_DISTINCT_DAYS,
@@ -58,13 +58,19 @@ export function InterviewProvider({
 
   const questions = useMemo<InterviewQuestion[]>(() => buildQuestionPlan(candidate), [candidate]);
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [currentQuestion, setCurrentQuestion] = useState<InterviewQuestion | null>(null);
+  const [currentQuestion, setCurrentQuestion] = useState<InterviewQuestion | null>(questions[0] ?? null);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [results, setResults] = useState<QuestionResult[]>([]);
   const [feedback, setFeedback] = useState<FinalEvaluation | null>(null);
   const [done, setDone] = useState(false);
   const [pending, setPending] = useState(false);
   const started = useRef(false);
+
+  useEffect(() => {
+    if (questions.length > 0 && !currentQuestion) {
+      setCurrentQuestion(questions[0] ?? null);
+    }
+  }, [questions, currentQuestion]);
 
   const post = async (payload: Record<string, unknown>): Promise<InterviewResponse> => {
     const res = await fetch("/api/interview", {

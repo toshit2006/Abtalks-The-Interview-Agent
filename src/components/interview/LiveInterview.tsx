@@ -23,7 +23,11 @@ import { KnowledgeGraphDrawer } from "@/components/interview/KnowledgeGraphDrawe
 import { CodeSandbox } from "@/components/interview/CodeSandbox";
 import { voiceEngine } from "@/lib/voice-engine";
 
-export function LiveInterview() {
+interface LiveInterviewProps {
+  onEndSession?: () => void;
+}
+
+export function LiveInterview({ onEndSession }: LiveInterviewProps) {
   const {
     candidate,
     currentQuestion,
@@ -36,6 +40,7 @@ export function LiveInterview() {
     pending,
     submitAnswer,
     skipQuestion,
+    endInterview,
   } = useInterview();
   const [draft, setDraft] = useState("");
   const [voiceActive, setVoiceActive] = useState(false);
@@ -112,6 +117,19 @@ export function LiveInterview() {
         <div className="flex items-center gap-2">
           <KnowledgeGraphDrawer candidate={candidate} results={results} />
           <VectorInspectorDrawer currentQuestion={currentQuestion} results={results} />
+          {onEndSession && (
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={async () => {
+                await endInterview();
+                onEndSession();
+              }}
+              className="h-7 text-[11px] font-mono border-rose-500/40 text-rose-300 hover:bg-rose-500/20 cursor-pointer"
+            >
+              End &amp; View Report
+            </Button>
+          )}
         </div>
       </div>
 

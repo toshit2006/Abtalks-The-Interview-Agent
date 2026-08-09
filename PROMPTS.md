@@ -303,6 +303,122 @@ console.log("ALL TESTS PASSED SUCCESSFULLY! ✅");
 
 ## 📊 Summary of Hackathon Deliverables
 
-- **Git Commit Log:** 15 sequential, descriptive commits pushed to [`github.com/toshit2006/Abtalks-The-Interview-Agent`](https://github.com/toshit2006/Abtalks-The-Interview-Agent).
+- **Git Commit Log:** Sequential, descriptive commits pushed to [`github.com/toshit2006/Abtalks-The-Interview-Agent`](https://github.com/toshit2006/Abtalks-The-Interview-Agent).
 - **Live Deployment:** Production Vercel deployment with full-stack serverless API support.
 - **Stage 1 to 4 Compliance:** 100% verified and judge-ready!
+
+---
+
+## 🎨 Phase 7: Fixed Navigation & Candidate Sidebar Layout Refinement
+
+### 7.1 Unified Sidebar Scroll & Fixed Header Bar
+- **Developer Thought:** *"The top navigation bar was scrolling out of view and the left sidebar was ending abruptly mid-page due to height cutoffs (`max-h-40`, `max-h-60`). We need a fixed top header and a unified sidebar scrolling container."*
+
+#### 💬 Prompts & Iterations
+```markdown
+PROMPT 7.1.1 (Fixed Layout & Unified Sidebar):
+"In `src/routes/index.tsx` and `CandidateSidebar.tsx`:
+1. Make the `<header>` navbar fixed to top (`fixed top-0 inset-x-0 z-50 h-14 bg-slate-950/95 backdrop-blur-xl`).
+2. Add `pt-14` padding to the page content wrapper.
+3. Position `<CandidateSidebar />` as `fixed top-14 left-0 bottom-0 w-80 z-30`.
+4. Remove artificial cutoffs (`max-h-40`, `max-h-60`) from `CandidateSidebar.tsx` and use a single unified vertical scroll container on `<aside>`."
+```
+- **Files Modified:** [`src/routes/index.tsx`](file:///c:/Users/gupta/Downloads/Abtalks-The-Interview-Agent-main/Abtalks-The-Interview-Agent-main/src/routes/index.tsx) & [`src/components/interview/CandidateSidebar.tsx`](file:///c:/Users/gupta/Downloads/Abtalks-The-Interview-Agent-main/Abtalks-The-Interview-Agent-main/src/components/interview/CandidateSidebar.tsx)
+
+---
+
+## 📈 Phase 8: Talent Analytics Dashboard & Individual Inspector Modal
+
+### 8.1 Recharts Visualizations & Filterable Directory
+- **Developer Thought:** *"The Talent Analytics portal needs deeper cohort intelligence: a score distribution bar chart, module mastery benchmarks, a cohort hiring breakdown donut chart, and a search/role-filterable candidate directory."*
+
+#### 💬 Prompts & Iterations
+```markdown
+PROMPT 8.1.1 (Cohort Analytics & Donut Charts):
+"In `TalentAnalyticsPortal.tsx`:
+1. Add a 3-column analytics row featuring Score Distribution, Module Mastery, and a Recharts Donut Pie Chart (`PieChart` with `innerRadius={42}`) showing Hiring Breakdown (Pass / Recommend / Hold / Review).
+2. Add a search filter and role selector dropdown to the candidate directory table."
+```
+
+### 8.2 Candidate Deep-Dive Modal & 31-Day Heatmap
+- **Developer Thought:** *"When inspecting an individual candidate, the modal should render a 31-day GitHub-style mission heatmap grid with hover tooltips and scrollable body without vertical viewport overflow."*
+
+#### 💬 Prompts & Iterations
+```markdown
+PROMPT 8.2.1 (Candidate Deep-Dive Inspection):
+"In `TalentAnalyticsPortal.tsx`:
+1. Build an Individual Candidate Inspection Modal using Shadcn UI `Dialog`.
+2. Add a 31-day activity heatmap grid with color-coded day squares (Passed, Attempted, Skipped, Pending) and hover tooltips.
+3. Set `DialogContent` to `max-h-[85vh] flex flex-col overflow-hidden` with a scrollable body wrapper (`min-h-0 flex-1 overflow-y-auto`) to prevent vertical screen overflow."
+```
+- **Files Modified:** [`src/components/analytics/TalentAnalyticsPortal.tsx`](file:///c:/Users/gupta/Downloads/Abtalks-The-Interview-Agent-main/Abtalks-The-Interview-Agent-main/src/components/analytics/TalentAnalyticsPortal.tsx)
+
+---
+
+## ⚡ Phase 9: Stage 4 Steer Real AST Validation & Dynamic Scoring
+
+### 9.1 Stack-Based AST Parser & Dynamic 3-Judge Consensus Panel
+- **Developer Thought:** *"Stage 4 Steer was previously passing invalid code like `hlo { ]` and displaying static judge scores. We need real AST syntax checking, bracket balance validation, structural export assertions, and dynamic judge scoring."*
+
+#### 💬 Prompts & Iterations
+```markdown
+PROMPT 9.1.1 (AST Verification & Dynamic Consensus):
+"In `LiveSteerSimulator.tsx`:
+1. Build stack-based bracket balance validation (`{`, `(`, `[` vs `}`, `)`, `]`) and AST keyword checking.
+2. Trigger Red Verification Failed Banner and Red 'FAILED' badges for syntax/assertion failures.
+3. Connect 3-Judge Live Consensus Panel to real dynamic execution state: display '-- / 100' when idle, '0 / 100' when failed, and dynamic AST quality & architecture scores when passed.
+4. Replace mock hackathon rules box with Evaluation Guidelines and update prompt buttons to descriptive titles ('Prompt #1: AST Analyzer', 'Prompt #2: Judge Consensus', 'Prompt #3: MCP Interceptor')."
+```
+- **Files Modified:** [`src/components/interview/LiveSteerSimulator.tsx`](file:///c:/Users/gupta/Downloads/Abtalks-The-Interview-Agent-main/Abtalks-The-Interview-Agent-main/src/components/interview/LiveSteerSimulator.tsx)
+
+---
+
+## 🛠️ Phase 10: Interactive Code Sandbox Blank Initial State & Layout Fixes
+
+### 10.1 Sandbox Editor Reset & Layout Realignment
+- **Developer Thought:** *"The Code Sandbox was pre-populating code into the editor on open and overlapping static analysis score text. It should start blank with an optional 'Load Template' button and responsive layout."*
+
+#### 💬 Prompts & Iterations
+```markdown
+PROMPT 10.1.1 (Clean Code Sandbox & AST Validation):
+"In `CodeSandbox.tsx`:
+1. Initialize editor state to blank (`useState('')`). Add an optional 'Load Template' button.
+2. Clear evaluation state whenever code is modified (`onChange`).
+3. Add AST bracket balance error handling (`AST Syntax Error: Unclosed symbol`).
+4. Re-architect result banner layout using `flex flex-col sm:flex-row gap-1.5` to eliminate text overlap."
+```
+- **Files Modified:** [`src/components/interview/CodeSandbox.tsx`](file:///c:/Users/gupta/Downloads/Abtalks-The-Interview-Agent-main/Abtalks-The-Interview-Agent-main/src/components/interview/CodeSandbox.tsx)
+
+---
+
+## 💬 Phase 11: Technical Interview Question Phrasing & Authenticity
+
+### 11.1 Standardized Objective Formatting & Punctuation
+- **Developer Thought:** *"Question prompts like 'Deep dive on Day 29: Monitor API performance and chatbot usage What trade-offs...' lacked proper punctuation. Let's format clean, authentic technical interview questions."*
+
+#### 💬 Prompts & Iterations
+```markdown
+PROMPT 11.1.1 (Authentic Question Generation):
+"In `src/lib/interview-engine.ts`:
+1. Format objectives to eliminate run-on ungrammatical sentences.
+2. Include Day Number, Day Title, and Module context clearly.
+3. Structure prompts like: 'Deep-dive on Day 29 (Monitoring, Logging & Observability): When implementing monitor api performance and chatbot usage, what key engineering trade-offs, edge cases, or failure modes must be handled?'"
+```
+- **Files Modified:** [`src/lib/interview-engine.ts`](file:///c:/Users/gupta/Downloads/Abtalks-The-Interview-Agent-main/Abtalks-The-Interview-Agent-main/src/lib/interview-engine.ts)
+
+---
+
+## ⏱️ Phase 12: Live Telemetry HUD, Timer Bug Fixes & SSR Compatibility
+
+### 12.1 Sidebar Timer Ticker & Initial Question Flash Fix
+- **Developer Thought:** *"The candidate timer was showing `29771308:56` due to `from = 0` Unix epoch fallback, and a missing `useEffect` import caused an SSR error."*
+
+#### 💬 Prompts & Iterations
+```markdown
+PROMPT 12.1.1 (Timer, HUD Integration & React Import Fix):
+"1. In `CandidateSidebar.tsx`: Add `00:00` guard in `elapsed()` and a 1-second `setInterval` ticker. Add subtle dark scrollbar styling (`scrollbar-thumb-indigo-900/60`).
+2. In `use-interview.tsx`: Initialize `currentQuestion` to `questions[0] ?? null` to prevent loading flash. Add `useEffect` to React imports.
+3. In `LiveInterview.tsx` & `src/routes/index.tsx`: Remove redundant top `SessionStatusBar` box above Live Interview, and add 'End & View Report' button directly into the Telemetry HUD."
+```
+- **Files Modified:** [`src/components/interview/CandidateSidebar.tsx`](file:///c:/Users/gupta/Downloads/Abtalks-The-Interview-Agent-main/Abtalks-The-Interview-Agent-main/src/components/interview/CandidateSidebar.tsx), [`src/components/interview/LiveInterview.tsx`](file:///c:/Users/gupta/Downloads/Abtalks-The-Interview-Agent-main/Abtalks-The-Interview-Agent-main/src/components/interview/LiveInterview.tsx), [`src/lib/use-interview.tsx`](file:///c:/Users/gupta/Downloads/Abtalks-The-Interview-Agent-main/Abtalks-The-Interview-Agent-main/src/lib/use-interview.tsx), [`src/routes/index.tsx`](file:///c:/Users/gupta/Downloads/Abtalks-The-Interview-Agent-main/Abtalks-The-Interview-Agent-main/src/routes/index.tsx)
+

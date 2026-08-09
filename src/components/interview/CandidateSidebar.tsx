@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import { CheckCircle2, CircleDashed, CircleSlash, Clock, Radio, TrendingUp } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
 import { curriculum, initials, moduleForDay } from "@/lib/curriculum";
@@ -11,8 +12,9 @@ const statusMeta = {
   pending: { icon: CircleDashed, className: "text-muted-foreground", label: "Pending" },
 } as const;
 
-function elapsed(from: number) {
-  const total = Math.max(0, Math.floor((Date.now() - from) / 1000));
+function elapsed(from: number, currentTime: number) {
+  if (!from || from <= 0) return "00:00";
+  const total = Math.max(0, Math.floor((currentTime - from) / 1000));
   const m = Math.floor(total / 60);
   const s = total % 60;
   return `${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
@@ -20,6 +22,12 @@ function elapsed(from: number) {
 
 export function CandidateSidebar() {
   const { candidate, sessionId, results, requiredQuestions, startedAt } = useInterview();
+  const [nowTime, setNowTime] = useState(Date.now());
+
+  useEffect(() => {
+    const timer = setInterval(() => setNowTime(Date.now()), 1000);
+    return () => clearInterval(timer);
+  }, []);
 
   const answered = results.length;
   const pct = Math.min(100, Math.round((answered / requiredQuestions) * 100));
@@ -49,7 +57,7 @@ export function CandidateSidebar() {
   return (
     <aside
       aria-label="Candidate profile"
-      className="flex h-full max-h-[calc(100vh-4.5rem)] flex-col gap-5 overflow-y-auto border-border bg-sidebar p-5 lg:border-r scrollbar-thin"
+      className="flex h-full w-full flex-col gap-5 overflow-y-auto border-r border-indigo-500/20 bg-sidebar/95 p-5 backdrop-blur-xl scrollbar-thin scrollbar-thumb-indigo-900/60 scrollbar-track-transparent"
     >
       <header className="grid grid-cols-[auto_minmax(0,1fr)] items-center gap-3">
         <div className="grid size-11 shrink-0 place-items-center rounded-2xl bg-gradient-to-br from-cyan-500 via-indigo-600 to-purple-600 font-display text-base font-bold text-white shadow-lg shadow-indigo-500/30 glow-multicolor">
@@ -70,7 +78,7 @@ export function CandidateSidebar() {
         </span>
         <span className="inline-flex items-center gap-1 rounded-md bg-surface px-2 py-0.5">
           <Clock className="size-3" aria-hidden />
-          {elapsed(startedAt)}
+          {elapsed(startedAt, nowTime)}
         </span>
         <span className="rounded-md bg-surface px-2 py-0.5 truncate max-w-[120px]">
           {sessionId}
@@ -111,7 +119,7 @@ export function CandidateSidebar() {
         >
           Curriculum modules
         </h3>
-        <ul className="max-h-40 overflow-y-auto space-y-1.5 pr-1 scrollbar-thin">
+        <ul className="space-y-1.5 pr-1">
           {modules.map((m) => (
             <li key={m.name} className="panel px-2.5 py-2">
               <div className="flex items-center justify-between gap-2">
@@ -138,7 +146,7 @@ export function CandidateSidebar() {
             {attemptedCount} passed · {skippedCount} skipped
           </span>
         </div>
-        <ul className="max-h-60 overflow-y-auto space-y-1 pr-1 scrollbar-thin">
+        <ul className="space-y-1 pr-1">
           {candidate.missions.map((m) => {
             const status = missionStatus.get(m.day) ?? "pending";
             const meta = statusMeta[status];

@@ -25,26 +25,39 @@ export function buildQuestionPlan(candidate: CandidateProfile): InterviewQuestio
     const detail: CurriculumDay | undefined = getDay(dayNum);
     if (!detail) continue;
 
-    // Build main conceptual question
+    const moduleObj = curriculum.modules.find((m) => m.days.includes(detail.day));
+    const moduleName = `Module ${moduleObj?.n ?? 1}`;
+    
+    // Main Objective Formatting
+    const rawObj0 = (detail.objectives[0] ?? "Master the underlying engineering principles.").trim();
+    const cleanObj0 = rawObj0.endsWith(".") ? rawObj0.slice(0, -1) : rawObj0;
+    const toolsText = detail.tools && detail.tools.length > 0
+      ? ` using ${detail.tools.slice(0, 2).join(" and ")}`
+      : "";
+
+    // Build main authentic conceptual question
     plan.push({
       id: `q${idCounter++}`,
       day: detail.day,
       dayTitle: detail.title,
-      module: `Module ${curriculum.modules.find((m) => m.days.includes(detail.day))?.n ?? 1}`,
-      prompt: `Regarding Day ${detail.day} (${detail.title}): ${detail.objectives[0] ?? "Explain the core concepts."} How would you implement this in a production AI system using ${detail.tools.slice(0, 2).join(" and ")}?`,
-      objective: detail.objectives[0] ?? "Mastery of topic",
+      module: moduleName,
+      prompt: `Regarding Day ${detail.day} (${detail.title}): How would you approach ${cleanObj0.toLowerCase()}${toolsText} in a production AI system?`,
+      objective: rawObj0,
       difficulty: dayNum > 20 ? "Hard" : dayNum > 10 ? "Medium" : "Easy",
     });
 
     // Build follow-up deep-dive question
     if (detail.objectives[1]) {
+      const rawObj1 = detail.objectives[1].trim();
+      const cleanObj1 = rawObj1.endsWith(".") ? rawObj1.slice(0, -1) : rawObj1;
+
       plan.push({
         id: `q${idCounter++}`,
         day: detail.day,
         dayTitle: detail.title,
-        module: `Module ${curriculum.modules.find((m) => m.days.includes(detail.day))?.n ?? 1}`,
-        prompt: `Deep dive on Day ${detail.day}: ${detail.objectives[1]} What trade-offs or failure modes must be handled?`,
-        objective: detail.objectives[1],
+        module: moduleName,
+        prompt: `Deep-dive on Day ${detail.day} (${detail.title}): When implementing ${cleanObj1.toLowerCase()}, what key engineering trade-offs, edge cases, or failure modes must be handled?`,
+        objective: rawObj1,
         difficulty: "Hard",
       });
     }

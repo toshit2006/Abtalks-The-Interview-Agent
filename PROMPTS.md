@@ -422,3 +422,35 @@ PROMPT 12.1.1 (Timer, HUD Integration & React Import Fix):
 ```
 - **Files Modified:** [`src/components/interview/CandidateSidebar.tsx`](file:///c:/Users/gupta/Downloads/Abtalks-The-Interview-Agent-main/Abtalks-The-Interview-Agent-main/src/components/interview/CandidateSidebar.tsx), [`src/components/interview/LiveInterview.tsx`](file:///c:/Users/gupta/Downloads/Abtalks-The-Interview-Agent-main/Abtalks-The-Interview-Agent-main/src/components/interview/LiveInterview.tsx), [`src/lib/use-interview.tsx`](file:///c:/Users/gupta/Downloads/Abtalks-The-Interview-Agent-main/Abtalks-The-Interview-Agent-main/src/lib/use-interview.tsx), [`src/routes/index.tsx`](file:///c:/Users/gupta/Downloads/Abtalks-The-Interview-Agent-main/Abtalks-The-Interview-Agent-main/src/routes/index.tsx)
 
+---
+
+## 📱 Phase 13: Full Mobile Viewport Responsiveness & Qdrant REST API Fixes
+
+### 13.1 Mobile Navigation Drawer & Candidate Profile Trigger
+- **Commits:** [`2c2a6c2`](https://github.com/toshit2006/Abtalks-The-Interview-Agent/commit/2c2a6c2) · [`c17f060`](https://github.com/toshit2006/Abtalks-The-Interview-Agent/commit/c17f060)
+- **Developer Thought:** *"On mobile viewports (< 768px), desktop navbar links were hidden with no navigation menu drawer, causing truncated headers and button squishing on real mobile devices."*
+
+#### 💬 Prompts & Iterations
+```markdown
+PROMPT 13.1.1 (Mobile Drawer & Header Optimization):
+"In `src/routes/index.tsx`, `LiveInterview.tsx`, `AuthModal.tsx`, `KnowledgeGraphDrawer.tsx`, and `VectorInspectorDrawer.tsx`:
+1. Build a Mobile Navigation Drawer (`Sheet`) triggered by a top header hamburger button (`Menu`) for screens `< md`.
+2. Add a mobile 'Profile' sheet button for screens `< lg` when `showSidebar` is active.
+3. Optimize button label text for mobile viewports ('PostgreSQL Auth' -> 'Auth', 'Interactive Knowledge Map' -> 'Knowledge Map', 'RAG Vector Inspector' -> 'Vector').
+4. Convert Telemetry HUD, Question Header, and Candidate Input headers into responsive flex layouts (`flex-col sm:flex-row`)."
+```
+
+### 13.2 Qdrant Cloud Vector API Point ID Sanitization
+- **Commit:** [`c05b4b8`](https://github.com/toshit2006/Abtalks-The-Interview-Agent/commit/c05b4b8)
+- **Developer Thought:** *"Qdrant Cloud REST API returns HTTP 400 when custom string keys like 'IA-AD8UO6-day-7' are passed as point IDs. Qdrant strictly requires point IDs to be unsigned integers or valid UUIDs."*
+
+#### 💬 Prompts & Iterations
+```markdown
+PROMPT 13.2.1 (Qdrant Point ID Sanitization):
+"In `src/lib/qdrant.ts`:
+1. Write a helper `stringToPointId(id)` that hashes arbitrary string keys into 32-bit positive unsigned integers (`Math.abs(hash >>> 0)`).
+2. Automatically sanitize all point IDs inside `upsertPoints` before sending vectors to Qdrant Cloud."
+```
+- **Files Modified:** [`src/routes/index.tsx`](file:///c:/Users/gupta/Downloads/Abtalks-The-Interview-Agent-main/Abtalks-The-Interview-Agent-main/src/routes/index.tsx), [`src/components/interview/LiveInterview.tsx`](file:///c:/Users/gupta/Downloads/Abtalks-The-Interview-Agent-main/Abtalks-The-Interview-Agent-main/src/components/interview/LiveInterview.tsx), [`src/components/auth/AuthModal.tsx`](file:///c:/Users/gupta/Downloads/Abtalks-The-Interview-Agent-main/Abtalks-The-Interview-Agent-main/src/components/auth/AuthModal.tsx), [`src/components/interview/KnowledgeGraphDrawer.tsx`](file:///c:/Users/gupta/Downloads/Abtalks-The-Interview-Agent-main/Abtalks-The-Interview-Agent-main/src/components/interview/KnowledgeGraphDrawer.tsx), [`src/components/interview/VectorInspectorDrawer.tsx`](file:///c:/Users/gupta/Downloads/Abtalks-The-Interview-Agent-main/Abtalks-The-Interview-Agent-main/src/components/interview/VectorInspectorDrawer.tsx), [`src/lib/qdrant.ts`](file:///c:/Users/gupta/Downloads/Abtalks-The-Interview-Agent-main/Abtalks-The-Interview-Agent-main/src/lib/qdrant.ts)
+
+

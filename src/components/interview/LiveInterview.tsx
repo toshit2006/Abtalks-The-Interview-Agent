@@ -98,23 +98,23 @@ export function LiveInterview({ onEndSession }: LiveInterviewProps) {
   return (
     <div className="space-y-6">
       {/* Real-Time AI Agent Performance Telemetry HUD */}
-      <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-indigo-500/30 bg-surface/60 p-3.5 backdrop-blur-xl font-mono text-xs shadow-md">
-        <div className="flex flex-wrap items-center gap-4 text-muted-foreground">
+      <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 rounded-2xl border border-indigo-500/30 bg-surface/60 p-3 sm:p-3.5 backdrop-blur-xl font-mono text-xs shadow-md">
+        <div className="flex flex-wrap items-center gap-2.5 sm:gap-4 text-muted-foreground text-[11px] sm:text-xs">
           <span className="flex items-center gap-1.5 text-cyan-300 font-semibold">
-            <Cpu className="size-4 text-cyan-400" /> Groq LLM:{" "}
+            <Cpu className="size-3.5 text-cyan-400 shrink-0" /> Groq LLM:{" "}
             <strong className="text-foreground">1,240 t/s</strong>
           </span>
           <span className="flex items-center gap-1.5 text-purple-300 font-semibold">
-            <Activity className="size-4 text-purple-400" /> Qdrant RAG:{" "}
+            <Activity className="size-3.5 text-purple-400 shrink-0" /> Qdrant RAG:{" "}
             <strong className="text-foreground">12 ms</strong>
           </span>
           <span className="flex items-center gap-1.5 text-amber-300 font-semibold">
-            <Zap className="size-4 text-amber-400" /> Cosine Similarity:{" "}
+            <Zap className="size-3.5 text-amber-400 shrink-0" /> Cosine:{" "}
             <strong className="text-foreground">0.942</strong>
           </span>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
           <KnowledgeGraphDrawer candidate={candidate} results={results} />
           <VectorInspectorDrawer currentQuestion={currentQuestion} results={results} />
           {onEndSession && (
@@ -125,9 +125,9 @@ export function LiveInterview({ onEndSession }: LiveInterviewProps) {
                 await endInterview();
                 onEndSession();
               }}
-              className="h-7 text-[11px] font-mono border-rose-500/40 text-rose-300 hover:bg-rose-500/20 cursor-pointer"
+              className="h-7 px-2 text-[10px] sm:text-[11px] font-mono border-rose-500/40 text-rose-300 hover:bg-rose-500/20 cursor-pointer"
             >
-              End &amp; View Report
+              End Session
             </Button>
           )}
         </div>
@@ -136,7 +136,7 @@ export function LiveInterview({ onEndSession }: LiveInterviewProps) {
       {/* 2-Column Distraction-Free IDE Workspace */}
       <div className="grid gap-6 lg:grid-cols-[1fr_1.1fr]">
         {/* Left Column: Question Prompt & Context */}
-        <div className="panel p-6 space-y-4 flex flex-col justify-between border-cyan-500/30 glow-multicolor">
+        <div className="panel p-4 sm:p-6 space-y-4 flex flex-col justify-between border-cyan-500/30 glow-multicolor">
           <div className="space-y-3">
             <div className="flex items-center justify-between gap-2">
               <Badge
@@ -163,19 +163,19 @@ export function LiveInterview({ onEndSession }: LiveInterviewProps) {
               )}
             </div>
 
-            <h2 className="font-display text-xl font-bold leading-relaxed text-foreground sm:text-2xl">
+            <h2 className="font-display text-lg sm:text-2xl font-bold leading-relaxed text-foreground">
               {done
                 ? "Assessment complete. Review candidate insights in the Post-Interview Report."
                 : (currentQuestion?.prompt ?? "Initializing candidate evaluation question…")}
             </h2>
 
             {currentQuestion && !done && (
-              <div className="rounded-2xl border border-indigo-500/30 bg-gradient-to-r from-indigo-950/40 to-purple-950/40 p-4 space-y-1 font-mono text-xs text-muted-foreground shadow-inner">
-                <div className="flex items-center justify-between text-foreground font-semibold">
-                  <span>
+              <div className="rounded-2xl border border-indigo-500/30 bg-gradient-to-r from-indigo-950/40 to-purple-950/40 p-3.5 sm:p-4 space-y-1.5 font-mono text-xs text-muted-foreground shadow-inner">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 text-foreground font-semibold">
+                  <span className="text-[11px] sm:text-xs">
                     Day {currentQuestion.day} · {currentQuestion.module}
                   </span>
-                  <span className="text-cyan-400">{currentQuestion.dayTitle}</span>
+                  <span className="text-cyan-400 text-[11px] sm:text-xs leading-tight">{currentQuestion.dayTitle}</span>
                 </div>
                 <p className="text-[11px] font-sans text-muted-foreground pt-1 leading-relaxed">
                   Objective: {currentQuestion.objective}
@@ -196,13 +196,13 @@ export function LiveInterview({ onEndSession }: LiveInterviewProps) {
         </div>
 
         {/* Right Column: Response Panel */}
-        <div className="panel p-6 space-y-4 flex flex-col justify-between border-purple-500/30">
+        <div className="panel p-4 sm:p-6 space-y-4 flex flex-col justify-between border-purple-500/30">
           {!done ? (
             <div className="space-y-3">
-              <div className="flex items-center justify-between">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
                 <div className="flex items-center gap-2">
-                  <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
-                    <Zap className="size-3.5 text-cyan-400" /> Candidate Response Input
+                  <span className="text-[11px] sm:text-xs font-semibold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5 shrink-0">
+                    <Zap className="size-3.5 text-cyan-400 shrink-0" /> Candidate Response Input
                   </span>
 
                   {/* Dynamic 16-Bar Audio Waveform Spectrum when mic/speech is active */}
@@ -221,26 +221,26 @@ export function LiveInterview({ onEndSession }: LiveInterviewProps) {
                   )}
                 </div>
 
-                <div className="flex items-center gap-2">
+                <div className="flex flex-wrap items-center gap-2">
                   <Button
                     variant="outline"
                     size="sm"
                     onClick={toggleMic}
-                    className={`gap-1.5 text-xs ${isRecording ? "border-rose-500 bg-rose-500/20 text-rose-300 animate-pulse" : "text-muted-foreground border-cyan-500/30 hover:border-cyan-500/60"}`}
+                    className={`gap-1.5 text-xs h-7 sm:h-8 px-2.5 ${isRecording ? "border-rose-500 bg-rose-500/20 text-rose-300 animate-pulse" : "text-muted-foreground border-cyan-500/30 hover:border-cyan-500/60"}`}
                   >
                     {isRecording ? (
                       <MicOff className="size-3.5" />
                     ) : (
                       <Mic className="size-3.5 text-cyan-400" />
                     )}
-                    {isRecording ? "Stop Recording" : "Voice Input"}
+                    {isRecording ? "Stop" : "Voice Input"}
                   </Button>
 
                   <Button
                     variant="outline"
                     size="sm"
                     onClick={() => setShowCodeEditor(!showCodeEditor)}
-                    className={`gap-1.5 text-xs ${showCodeEditor ? "bg-purple-500/20 text-purple-300 font-semibold border-purple-500/50" : "text-muted-foreground border-purple-500/30"}`}
+                    className={`gap-1.5 text-xs h-7 sm:h-8 px-2.5 ${showCodeEditor ? "bg-purple-500/20 text-purple-300 font-semibold border-purple-500/50" : "text-muted-foreground border-purple-500/30"}`}
                   >
                     <Code2 className="size-3.5 text-purple-400" />
                     {showCodeEditor ? "Hide Sandbox" : "Code Sandbox"}
@@ -269,11 +269,11 @@ export function LiveInterview({ onEndSession }: LiveInterviewProps) {
                 <span className="tabular-nums font-bold text-foreground">{wordCount} words</span>
               </div>
 
-              <div className="flex items-center justify-between pt-2">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-2">
                 <Button
                   onClick={() => void send()}
                   disabled={pending || !draft.trim()}
-                  className="gap-2 bg-gradient-to-r from-cyan-500 via-indigo-600 to-purple-600 font-semibold text-white hover:brightness-110 shadow-md shadow-indigo-500/20"
+                  className="w-full sm:w-auto gap-2 bg-gradient-to-r from-cyan-500 via-indigo-600 to-purple-600 font-semibold text-white hover:brightness-110 shadow-md shadow-indigo-500/20 cursor-pointer"
                 >
                   <Send className="size-4" />
                   {pending ? "Analyzing response…" : "Submit Answer"}

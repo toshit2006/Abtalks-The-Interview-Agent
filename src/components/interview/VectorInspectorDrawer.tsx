@@ -30,10 +30,10 @@ export function VectorInspectorDrawer({ currentQuestion, results }: Props) {
         <Button
           variant="outline"
           size="sm"
-          className="gap-2 border-violet-500/30 bg-violet-500/10 text-xs text-violet-300 hover:border-violet-500/60 hover:bg-violet-500/20"
+          className="gap-1.5 border-violet-500/30 bg-violet-500/10 text-[11px] sm:text-xs text-violet-300 hover:border-violet-500/60 hover:bg-violet-500/20 px-2 sm:px-3 cursor-pointer"
         >
-          <Layers className="size-3.5 text-violet-400" />
-          RAG Vector Inspector
+          <Layers className="size-3.5 text-violet-400 shrink-0" />
+          <span className="hidden sm:inline">RAG </span>Vector<span className="hidden sm:inline"> Inspector</span>
         </Button>
       </SheetTrigger>
       <SheetContent

@@ -137,10 +137,10 @@ export function AuthModal() {
         <Button
           variant="outline"
           size="sm"
-          className="gap-2 border-emerald-500/30 bg-surface-raised/80 font-medium text-emerald-400 hover:border-emerald-500/60 hover:bg-emerald-500/10 hover:text-emerald-300"
+          className="gap-1.5 border-emerald-500/30 bg-surface-raised/80 font-medium text-xs text-emerald-400 hover:border-emerald-500/60 hover:bg-emerald-500/10 px-2 sm:px-3 cursor-pointer"
         >
-          <LogIn className="size-3.5" />
-          PostgreSQL Auth
+          <LogIn className="size-3.5 text-emerald-400 shrink-0" />
+          <span className="hidden sm:inline">PostgreSQL </span>Auth
         </Button>
       </DialogTrigger>
       <DialogContent className="border-border bg-sidebar/95 backdrop-blur-xl sm:max-w-[425px]">

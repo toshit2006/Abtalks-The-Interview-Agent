@@ -45,10 +45,10 @@ export function KnowledgeGraphDrawer({ candidate, results }: Props) {
         <Button
           variant="outline"
           size="sm"
-          className="gap-2 text-xs border-cyan-500/40 bg-cyan-500/10 text-cyan-300 hover:bg-cyan-500/20 shadow-sm"
+          className="gap-1.5 text-[11px] sm:text-xs border-cyan-500/40 bg-cyan-500/10 text-cyan-300 hover:bg-cyan-500/20 shadow-sm px-2 sm:px-3 cursor-pointer"
         >
-          <Network className="size-3.5 text-cyan-400" />
-          Interactive Knowledge Map
+          <Network className="size-3.5 text-cyan-400 shrink-0" />
+          <span className="hidden sm:inline">Interactive </span>Knowledge Map
         </Button>
       </SheetTrigger>
 
